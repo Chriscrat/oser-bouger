@@ -72,7 +72,7 @@
                 <div
                     class="fr-col-12"
                     appInfiniteScroll
-                    (scrolledToEnd)="store.loadNextPage()"
+                    (scrolledToEnd)="onScrollEnd()"
                     [disabled]="store.listLoading()"
                 ></div>
             }

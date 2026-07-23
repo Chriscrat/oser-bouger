@@ -1,0 +1,21 @@
+<div [class]="['fr-toast', classType()].join(' ')">
+    @if (toast().icon) {
+        <div class="fr-toast__prepend">
+            <app-icon [icon]="toast().icon!"></app-icon>
+        </div>
+    }
+    <div class="fr-toast__content">
+        {{ toast().message }}
+    </div>
+    <button
+        type="button"
+        class="fr-toast__close"
+        aria-label="Fermer la notification"
+        (click)="closed.emit()"
+    >
+        <span
+            class="fr-icon-close-line"
+            aria-hidden="true"
+        ></span>
+    </button>
+</div>

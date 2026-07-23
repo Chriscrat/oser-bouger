@@ -8,6 +8,8 @@ import { mapEventToCardDetails } from "../../mappers/event-card.mapper";
 import { Modal } from "../../../../ui/modal/components/modal";
 import { EventCover } from "../event-cover/event-cover";
 import { EventDetails } from "../event-details/event-details";
+import { ToastService } from "../../../../ui/toast/services/toast.service";
+
 @Component({
     selector: "app-event-list",
     imports: [Card, Alert, InfiniteScrollDirective, Modal, EventCover, EventDetails],
@@ -22,4 +24,11 @@ export class EventList implements OnInit {
     alertNoEventFound = { description: "Aucun évènement trouvé" };
     events = computed(() => this.store.events().map(mapEventToCardDetails));
     buttonModalTitle = "Voir plus";
+
+    private toastService = inject(ToastService);
+
+    onScrollEnd(): void {
+        this.store.loadNextPage();
+        this.toastService.info("Récupération de nouveaux évènements ...");
+    }
 }

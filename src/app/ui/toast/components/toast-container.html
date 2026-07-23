@@ -1,0 +1,9 @@
+<div
+    id="toast-container"
+    [attr.aria-live]="ariaLive()"
+    aria-atomic="false"
+>
+    @for (toast of toasts(); track toast.id) {
+        <app-toast [toast]="toast" (closed)="dismiss(toast.id)"></app-toast>
+    }
+</div>

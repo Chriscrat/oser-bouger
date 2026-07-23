@@ -1,9 +1,8 @@
 import { Component, signal } from "@angular/core";
-import { EventCard } from "./components/event-card/event-card";
 import { Header } from "./layout/components/header/header";
 import { Footer } from "./layout/components/footer/footer";
-import { Hero } from "./components/hero/hero";
-
+import { Hero } from "./features/home/components/hero/hero";
+import { EventCard } from "./features/events/components/event-card";
 @Component({
     selector: "app-root",
     imports: [EventCard, Header, Footer, Hero],

@@ -1,0 +1,15 @@
+.fr-hero {
+    padding: 5rem 0 5rem 0;
+    &__content {
+        h1 {
+            font-size: 4rem;
+            line-height: 5rem;
+        }
+
+        p {
+            font-size: 1.25rem;
+            font-weight: 400;
+            line-height: 2rem;
+        }
+    }
+}

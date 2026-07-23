@@ -2,10 +2,11 @@ import { Component, signal } from "@angular/core";
 import { EventCard } from "./components/event-card/event-card";
 import { Header } from "./layout/components/header/header";
 import { Footer } from "./layout/components/footer/footer";
+import { Hero } from "./components/hero/hero";
 
 @Component({
     selector: "app-root",
-    imports: [EventCard, Header, Footer],
+    imports: [EventCard, Header, Footer, Hero],
     templateUrl: "./app.html",
     styleUrl: "./app.scss",
 })

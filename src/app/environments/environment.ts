@@ -1,0 +1,4 @@
+const OPENDATA_API_URL = "https://opendata.paris.fr";
+export const environment = {
+    catalogApi: `${OPENDATA_API_URL}/api/explore/v2.1/catalog/datasets/que-faire-a-paris-/records`,
+};

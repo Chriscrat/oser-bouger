@@ -3,14 +3,21 @@ import { Header } from "./layout/components/header/header";
 import { Footer } from "./layout/components/footer/footer";
 import { Hero } from "./features/home/components/hero/hero";
 import { EventCard } from "./features/events/components/event-card";
+import { Alert } from "./ui/alert/components/alert";
 @Component({
     selector: "app-root",
-    imports: [EventCard, Header, Footer, Hero],
+    imports: [EventCard, Header, Footer, Hero, Alert],
     templateUrl: "./app.html",
     styleUrl: "./app.scss",
 })
 export class App {
     protected readonly title = signal("oser-bouger");
+    noEventsFound = "Aucun évènement trouvé";
+    alert = {
+        title: "Ce service n'est pas un projet officiel",
+        description:
+            "Il a pour but d'implémenter le DSFR à des fins de test par un particulier et n'est aucunement associé aux équipes digitales des entités de l'État français.",
+    };
     data = {
         total_count: 2708,
         results: [

@@ -1,0 +1,6 @@
+<div [class]="['fr-alert fr-mx-2v', classType()].join(' ')">
+    @if (alert().title) {
+        <h3 class="fr-alert__title">{{ alert().title }}</h3>
+    }
+    <p>{{ alert().description }}</p>
+</div>

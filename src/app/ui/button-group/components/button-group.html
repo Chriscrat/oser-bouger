@@ -1,0 +1,27 @@
+<fieldset class="fr-segmented">
+    @if (buttonGroup().title) {
+        <legend class="fr-segmented__legend fr-text-md">
+            {{ buttonGroup().title }}
+        </legend>
+    }
+    <div class="fr-segmented__elements">
+        @for (button of buttonGroup().buttons; track button.text; let buttonIndex = $index) {
+            <div class="fr-segmented__element">
+                <input
+                    [value]="button.value"
+                    [checked]="button.checked"
+                    type="radio"
+                    [id]="`segmented-1-${buttonIndex}`"
+                    name="segmented-1"
+                    (click)="buttonGroup().clickAction(button.value)"
+                />
+                <label
+                    class="fr-label"
+                    [for]="`segmented-1-${buttonIndex}`"
+                >
+                    {{ button.text }}
+                </label>
+            </div>
+        }
+    </div>
+</fieldset>

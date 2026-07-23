@@ -1,9 +1,9 @@
-import { iconSize } from "../models/icon"; 
+import { iconSize } from "../models/icon";
 
 const ICON_CLASS_SIZE: Record<iconSize, string> = {
-    xs: 'sm',
-    md: 'md',
-    lg: 'lg'
+    xs: "sm",
+    md: "md",
+    lg: "lg",
 };
 
 export function buildIconClassSize(size: iconSize): string {

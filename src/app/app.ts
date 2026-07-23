@@ -1,8 +1,10 @@
 import { Component, signal } from "@angular/core";
 import { EventCard } from "./components/event-card/event-card";
+import { Header } from "./layout/components/header/header";
+
 @Component({
     selector: "app-root",
-    imports: [EventCard],
+    imports: [EventCard, Header],
     templateUrl: "./app.html",
     styleUrl: "./app.scss",
 })

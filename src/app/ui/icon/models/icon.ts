@@ -10,6 +10,7 @@ type arrowsIcons = "arrow-right";
 type mapIcons = "road-map" | "earth";
 type userIcons = "team";
 type financeIcons = "money-euro-circle";
+type notificationIcons = "checkbox-circle" | "error-warning" | "alert" | "information";
 export type socialNetworkIcons =
     | "instagram"
     | "linkedin-box"
@@ -30,6 +31,7 @@ export type iconClass =
     | mapIcons
     | userIcons
     | financeIcons
+    | notificationIcons
     | socialNetworkIcons;
 
 export type iconStyle = "fill" | "line";

@@ -1,0 +1,10 @@
+<div class="tag-section">
+    @if (!iconHidden()) {
+        <app-icon
+            [icon]="icon()"
+            [class]="colorIcon()"
+            [size]="size()"
+        ></app-icon>
+    }
+    <ng-content />
+</div>

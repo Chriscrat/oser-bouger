@@ -1,0 +1,12 @@
+<div class="fr-event-details fr-container--fluid">
+    <div class="fr-grid-row">
+        <div class="fr-event-details__tags fr-col-12 fr-col-lg-4">
+            <app-event-contact-tag [event]="eventTag()"></app-event-contact-tag>
+            <app-event-contact-social [contacts]="contacts()"></app-event-contact-social>
+        </div>
+        <div class="fr-event-details__description fr-col-12 fr-col-offset-lg-1 fr-col-lg-7 fr-px-4v">
+            <h2 class="fr-text-title--blue-france fr-mt-4v">Au programme :</h2>
+            <div [innerHTML]="eventDescription()"></div>
+        </div>
+    </div>
+</div>

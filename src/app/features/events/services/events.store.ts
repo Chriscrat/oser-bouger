@@ -1,11 +1,11 @@
 import { Injectable, inject, signal, computed } from "@angular/core";
 import { EMPTY, catchError, finalize, tap } from "rxjs";
 import { EventsService } from "./events.service";
-import { EventModel } from "../models/event";
+import { Event } from "../models/event";
 import { EventFilters } from "../models/event-filters";
 
 interface EventsListState {
-    items: EventModel[];
+    items: Event[];
     total: number;
     limit: number;
     hasMore: boolean;

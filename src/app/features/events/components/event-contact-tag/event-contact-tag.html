@@ -1,0 +1,46 @@
+<div class="tags fr-p-6v">
+    <h6 class="fr-text--bold fr-text-action-high--red-marianne fr-pt-4v">
+        {{ event().title }}
+    </h6>
+    @if (completeAddress() !== null) {
+        <app-tag
+            icon="road-map"
+            color="red"
+        >
+            <div
+                [innerHTML]="completeAddress()"
+                class="rich-text"
+            ></div>
+        </app-tag>
+    }
+    @if ((event().tags?.accessibility ?? []).length > 0) {
+        <app-tag
+            icon="wheelchair"
+            color="red"
+        >
+            <ul>
+                @for (tag of event().tags?.accessibility ?? []; track tag.key) {
+                    <li>
+                        {{ tag.label }}
+                    </li>
+                }
+            </ul>
+        </app-tag>
+    }
+    @if (event().tags?.audience) {
+        <app-tag
+            icon="team"
+            color="red"
+        >
+            {{ event().tags?.audience }}
+        </app-tag>
+    }
+    @if (event().tags?.priceType) {
+        <app-tag
+            icon="money-euro-circle"
+            color="red"
+        >
+            {{ event().tags?.priceType }}
+        </app-tag>
+    }
+</div>

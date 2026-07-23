@@ -1,0 +1,30 @@
+<div class="fr-event-cover">
+    <div class="fr-event-cover__image">
+        <img
+            [src]="eventCover().cover?.url"
+            class="fr-ratio-16x9"
+            [alt]="eventCover().cover?.alt"
+        />
+        @if (eventCover().cover?.credit) {
+            <div class="credits fr-text--sm">
+                Crédits: © {{ eventCover().cover?.credit }}
+            </div>
+        }
+    </div>
+    <div class="fr-event-cover__header fr-p-4v">
+        <h2>ÉVÈNEMENTS</h2>
+        <p
+            class="fr-text--lg"
+            [id]="titleId()"
+        >
+            <span 
+                class="fr-icon-arrow-right-line fr-icon--lg"
+                aria-hidden="true"
+            ></span>
+            {{ eventCover().title }}
+        </p>
+        @if (eventCover().date_description) {
+            <p [innerHTML]="eventCover().date_description"></p>
+        }
+    </div>
+</div>

@@ -1,0 +1,30 @@
+<div class="contacts fr-p-6v fr-pb-6v">
+    <h4>Contactez-nous</h4>
+    @if (contacts()?.organisation_name) {
+        <h6>{{ contacts()?.organisation_name }}</h6>
+    }
+    @if (contacts()?.mail) {
+        <app-tag icon="mail">
+            <a [href]="mailContact()"> Mail </a>
+        </app-tag>
+    }
+    @if (contacts()?.url) {
+        <app-tag icon="earth">
+            <a [href]="contacts()?.url">
+                {{ contacts()?.url_text || "Portail officiel" }}
+            </a>
+            <app-icon icon="external-link"></app-icon>
+        </app-tag>
+    }
+    @if (socialLinks().length > 0) {
+        <!-- Social networks -->
+        @for (link of socialLinks(); track link.url) {
+            <app-tag [icon]="link.icon">
+                <a [href]="link.url">
+                    {{ link.label }}
+                    <app-icon icon="external-link"></app-icon>
+                </a>
+            </app-tag>
+        }
+    }
+</div>

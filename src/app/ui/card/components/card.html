@@ -1,14 +1,14 @@
-<div class="fr-card fr-enlarge-link">
+<div [class]="['fr-card', orientationTypeClass()].join(' ')">
+    <div class="fr-card__header">
+        <ng-content select="[card-header]"/>
+    </div>
+
     <div class="fr-card__body">
         <div class="fr-card__content">
-            <h3 class="fr-card__title">
-                <ng-content select=".card-title" />
-            </h3>
+            <ng-content select="[card-content]"/>
         </div>
     </div>
-    <div class="fr-card__header">
-        <div class="fr-card__img">
-            <ng-content select=".card-img" />
-        </div>
+    <div class="fr-card__footer">
+        <ng-content select="[card-footer]"/>
     </div>
 </div>

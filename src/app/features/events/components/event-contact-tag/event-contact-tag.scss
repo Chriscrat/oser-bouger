@@ -1,0 +1,33 @@
+$blue-separator: var(--text-inverted-blue-france);
+
+@mixin tag-separator($separator-color) {
+    app-tag {
+        display: block;
+        position: relative;
+    }
+
+    app-tag + app-tag {
+        margin-top: 4rem;
+
+        &::before {
+            content: "";
+            background-color: $separator-color;
+            border-radius: 0.5rem;
+            display: block;
+            height: 0.15rem;
+            width: 100%;
+            position: absolute;
+            top: -2rem;
+        }
+    }
+}
+
+.tags {
+    @include tag-separator($blue-separator);
+    event-tag:last-child {
+        margin-bottom: 2em;
+    }
+    ul {
+        list-style: none;
+    }
+}

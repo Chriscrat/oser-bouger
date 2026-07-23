@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 
-import { Icon } from "./icon";
+import { EventContactTag } from "./event-contact-tag";
 
-describe("Icon", () => {
-    let component: Icon;
-    let fixture: ComponentFixture<Icon>;
+describe("EventContactTag", () => {
+    let component: EventContactTag;
+    let fixture: ComponentFixture<EventContactTag>;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            imports: [Icon],
+            imports: [EventContactTag],
         }).compileComponents();
 
-        fixture = TestBed.createComponent(Icon);
+        fixture = TestBed.createComponent(EventContactTag);
         component = fixture.componentInstance;
         await fixture.whenStable();
     });

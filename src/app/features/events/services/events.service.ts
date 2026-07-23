@@ -8,10 +8,11 @@ import { environment } from "../../../environments/environment";
 @Injectable({ providedIn: "root" })
 export class EventsService {
     private http = inject(HttpClient);
-    private baseUrl = `${environment.catalogApi}`;
+    private eventListUrl = `${environment.catalogApi}`;
+    private mapUrl = `${environment.mapApi}`;
 
     getEvents(filters: EventFilters, pagination: PaginationParams): Observable<EventListModel> {
-        return this.http.get<EventListModel>(this.baseUrl, {
+        return this.http.get<EventListModel>(this.eventListUrl, {
             params: this.buildParams(filters, pagination),
         });
     }
@@ -34,5 +35,12 @@ export class EventsService {
         }
 
         return params;
+    }
+
+    getEventsMap() {
+        const disjunctiveList =
+            "?disjunctive.tags&disjunctive.address_name&disjunctive.address_zipcode&disjunctive.address_city&disjunctive.pmr&disjunctive.blind&disjunctive.deaf&disjunctive.price_type&disjunctive.access_type&disjunctive.programs";
+        const location = "&location=9,48.73355,2.45819";
+        return encodeURI(`${this.mapUrl}/${disjunctiveList}${location}`);
     }
 }

@@ -88,4 +88,8 @@ export class EventsStore {
             error: null,
         });
     }
+
+    getEventsMapUrl(): string {
+        return this.api.getEventsMap();
+    }
 }

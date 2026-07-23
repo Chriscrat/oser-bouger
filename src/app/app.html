@@ -4,16 +4,7 @@
     id="content"
     role="main"
 >
-    <div class="fr-container">
-        <div class="fr-my-7w fr-mt-md-12w fr-mb-md-10w fr-grid-row fr-grid-row--gutters fr-grid-row--middle fr-grid-row--center">
-            <app-alert
-                [alert]="alert"
-                type="warning"
-            ></app-alert>
-            <app-hero></app-hero>
-            <app-event-list class="fr-container"></app-event-list>
-        </div>
-    </div>
+    <router-outlet></router-outlet>
 </main>
 
 <app-footer></app-footer>

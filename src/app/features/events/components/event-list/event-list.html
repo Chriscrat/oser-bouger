@@ -1,86 +1,100 @@
 <div class="fr-container fr-background-alt--grey fr-px-md-2 fr-pb-6v fr-pb-md-10v">
     <div class="fr-sticky-container fr-background-alt--grey">
-        <h3>{{ store.events().length }} évènement(s) affiché(s)</h3>
-        <h6>{{ store.total() }} évènement(s) disponible(s)</h6>
-    </div>
-    @if (store.events().length > 0) {
-        <div class="fr-grid-row fr-grid-row--gutters">
-            @for (event of events(); track event.id) {
-                <app-card class="fr-col-12 fr-col-sm-6 fr-col-md-4 fr-col-lg-3">
-                    <div card-header>
-                        <div class="fr-card__img">
-                            <img
-                                class="fr-responsive-img"
-                                [src]="event.cover?.url"
-                                [alt]="event.cover?.alt"
-                            />
-                            <ul class="fr-badges-group">
-                                @if (event.tags?.priceType) {
-                                    <li>
-                                        <p class="fr-badge">
-                                            {{ event.tags?.priceType }}
-                                        </p>
-                                    </li>
-                                }
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div card-content>
-                        <div class="fr-card__start">
-                            <ul class="fr-badges-group audience-badge">
-                                @if (event.tags?.audience) {
-                                    <li>
-                                        <p class="fr-badge fr-badge--purple-glycine">
-                                            {{ event.tags?.audience }}
-                                        </p>
-                                    </li>
-                                }
-                            </ul>
-                        </div>
-                        <h3 class="fr-card__title">
-                            {{ event.title }}
-                        </h3>
-                    </div>
-
-                    <div card-footer>
-                        <app-modal
-                            #modal
-                            [id]="event.id"
-                            [buttonTitle]="buttonModalTitle"
-                        >
-                            <div modal-content>
-                                <app-event-cover
-                                    [event]="event"
-                                    [titleId]="modal.modalTitleId()"
-                                ></app-event-cover>
-                                <app-event-details [event]="event"></app-event-details>
-                            </div>
-                            <li modal-footer>
-                                <a
-                                    [href]="event.url"
-                                    class="fr-btn fr-icon-external-link-line fr-btn--icon-right fr-btn--secondary"
-                                >
-                                    Lien vers l'évènement
-                                </a>
-                            </li>
-                        </app-modal>
-                    </div>
-                </app-card>
-            }
-            @if (store.hasMore()) {
-                <div
-                    class="fr-col-12"
-                    appInfiniteScroll
-                    (scrolledToEnd)="onScrollEnd()"
-                    [disabled]="store.listLoading()"
-                ></div>
-            }
+        <div class="fr-sticky-container__content">
+            <div class="fr-text--sm fr-text--bold">
+                {{ store.events().length }} évènement(s) affiché(s)
+            </div>
+            <app-button-group [buttonGroup]="buttons"></app-button-group>
         </div>
-    } @else {
-        <app-alert
-            [alert]="alertNoEventFound"
-            type="info"
-        ></app-alert>
-    }
+    </div>
+    <div [hidden]="currentView !== 'list'">
+        @if (store.events().length > 0) {
+            <div class="fr-grid-row fr-grid-row--gutters">
+                @for (event of events(); track event.id) {
+                    <app-card class="fr-col-12 fr-col-sm-6 fr-col-md-4 fr-col-lg-3">
+                        <div card-header>
+                            <div class="fr-card__img">
+                                <img
+                                    class="fr-responsive-img"
+                                    [src]="event.cover?.url"
+                                    [alt]="event.cover?.alt"
+                                />
+                                <ul class="fr-badges-group">
+                                    @if (event.tags?.priceType) {
+                                        <li>
+                                            <p class="fr-badge">
+                                                {{ event.tags?.priceType }}
+                                            </p>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div card-content>
+                            <div class="fr-card__start">
+                                <ul class="fr-badges-group audience-badge">
+                                    @if (event.tags?.audience) {
+                                        <li>
+                                            <p class="fr-badge fr-badge--purple-glycine">
+                                                {{ event.tags?.audience }}
+                                            </p>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                            <h3 class="fr-card__title">
+                                {{ event.title }}
+                            </h3>
+                        </div>
+
+                        <div card-footer>
+                            <app-modal
+                                #modal
+                                [id]="event.id"
+                                [buttonTitle]="buttonModalTitle"
+                            >
+                                <div modal-content>
+                                    <app-event-cover
+                                        [event]="event"
+                                        [titleId]="modal.modalTitleId()"
+                                    ></app-event-cover>
+                                    <app-event-details [event]="event"></app-event-details>
+                                </div>
+                                <li modal-footer>
+                                    <a
+                                        [href]="event.url"
+                                        class="fr-btn fr-icon-external-link-line fr-btn--icon-right fr-btn--secondary"
+                                    >
+                                        Lien vers l'évènement
+                                    </a>
+                                </li>
+                            </app-modal>
+                        </div>
+                    </app-card>
+                }
+                @if (store.hasMore()) {
+                    <div
+                        class="fr-col-12"
+                        appInfiniteScroll
+                        (scrolledToEnd)="onScrollEnd()"
+                        [disabled]="store.listLoading()"
+                    ></div>
+                }
+            </div>
+        } @else {
+            <app-alert
+                [alert]="alertNoEventFound"
+                type="info"
+            ></app-alert>
+        }
+    </div>
+    <div [hidden]="currentView !== 'map'">
+        <div class="fr-container">
+            <iframe
+                [src]="trustedMapUrl()"
+                frameborder="0"
+            ></iframe>
+        </div>
+    </div>
 </div>

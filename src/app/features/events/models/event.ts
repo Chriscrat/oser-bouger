@@ -82,3 +82,5 @@ export type FormatedEvent = Pick<
         ["priceType"]: string | null;
     } | null;
 };
+
+export type EventView = "list" | "map";

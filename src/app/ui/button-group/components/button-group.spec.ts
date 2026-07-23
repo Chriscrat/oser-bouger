@@ -1,8 +1,7 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { ButtonGroup } from "./button-group";
 
-import { ButtonGroup } from './button-group';
-
-describe('ButtonGroup', () => {
+describe("ButtonGroup", () => {
     let component: ButtonGroup;
     let fixture: ComponentFixture<ButtonGroup>;
 
@@ -16,7 +15,7 @@ describe('ButtonGroup', () => {
         await fixture.whenStable();
     });
 
-    it('should create', () => {
+    it("should create", () => {
         expect(component).toBeTruthy();
     });
 });

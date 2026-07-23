@@ -6,6 +6,6 @@ export interface button {
 
 export interface ButtonGroupModel {
     title: string | null;
-    clickAction: Function;
-    buttons: button[]
+    clickAction: (value: string) => void;
+    buttons: button[];
 }

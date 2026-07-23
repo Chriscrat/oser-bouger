@@ -5,27 +5,31 @@
     role="main"
 >
     <div class="fr-container">
-        <div
-            class="fr-my-7w fr-mt-md-12w fr-mb-md-10w fr-grid-row fr-grid-row--gutters fr-grid-row--middle fr-grid-row--center"
-        >
+        <div class="fr-my-7w fr-mt-md-12w fr-mb-md-10w fr-grid-row fr-grid-row--gutters fr-grid-row--middle fr-grid-row--center">
             <app-alert
                 [alert]="alert"
                 type="warning"
             ></app-alert>
             <app-hero></app-hero>
-            <div
-                class="fr-container fr-background-alt--grey fr-px-md-2 fr-pt-10v fr-pt-md-10v fr-pb-6v fr-pb-md-10v"
-            >
+            <div class="fr-container fr-background-alt--grey fr-px-md-2 fr-pt-10v fr-pt-md-10v fr-pb-6v fr-pb-md-10v">
                 @if (data.total_count) {
                     <h3>{{ data.total_count }} évènement(s) trouvés</h3>
                 }
                 <div class="fr-grid-row fr-grid-row--gutters">
                     @for (event of data["results"]; track event.id) {
-                        <app-event-card
-                            class="fr-col-12 fr-col-sm-6 fr-col-md-4 fr-col-lg-3"
-                            [event]="event"
-                        ></app-event-card>
-                        <br />
+                        <app-card class="fr-col-12 fr-col-sm-6 fr-col-md-4 fr-col-lg-3">
+                            <a
+                                [href]="event.url"
+                                class="card-title"
+                            >
+                                {{ event.title }}
+                            </a>
+                            <img
+                                class="card-img fr-responsive-img"
+                                [src]="event.cover_url"
+                                [alt]="event.title"
+                            />
+                        </app-card>
                     } @empty {
                         <p>{{ noEventsFound }}</p>
                     }

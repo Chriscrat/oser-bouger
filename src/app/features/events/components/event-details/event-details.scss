@@ -3,7 +3,7 @@ $bg-social-network: var(--background-contrast-blue-france);
 
 .fr-event-details {
     &__tags {
-        background-color: $bg-tags;
+        background-color: var(--bg-tags);
         display: flex;
         flex-direction: column;
         app-event-contact-social {

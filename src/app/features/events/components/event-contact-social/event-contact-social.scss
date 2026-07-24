@@ -1,4 +1,4 @@
-$white-separator: #fff;
+$white-separator: var(--bg-tags);
 
 @mixin tag-separator($separator-color) {
     app-tag {

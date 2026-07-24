@@ -2,7 +2,6 @@ import { Component } from "@angular/core";
 import { Alert } from "../../../ui/alert/components/alert";
 import { Hero } from "../../home/components/hero/hero";
 import { EventList } from "../../events/components/event-list/event-list";
-
 @Component({
     selector: "app-home-page",
     standalone: true,

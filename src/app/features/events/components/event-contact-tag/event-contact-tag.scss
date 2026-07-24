@@ -1,4 +1,4 @@
-$blue-separator: var(--text-inverted-blue-france);
+$blue-separator: var(--background-contrast-blue-france);
 
 @mixin tag-separator($separator-color) {
     app-tag {
@@ -24,6 +24,7 @@ $blue-separator: var(--text-inverted-blue-france);
 
 .tags {
     @include tag-separator($blue-separator);
+    color: black;
     event-tag:last-child {
         margin-bottom: 2em;
     }

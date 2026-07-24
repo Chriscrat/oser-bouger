@@ -6,3 +6,15 @@
         }
     }
 }
+
+:root {
+    --bg-tags: #fff;
+}
+
+:root[data-fr-theme="light"] {
+    --bg-tags: #f5f5fe;
+}
+
+:root[data-fr-theme="dark"] {
+    --bg-tags: #fff;
+}

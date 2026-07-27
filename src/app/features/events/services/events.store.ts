@@ -2,7 +2,8 @@ import { Injectable, inject, signal, computed } from "@angular/core";
 import { EMPTY, catchError, finalize, tap } from "rxjs";
 import { EventsService } from "./events.service";
 import { Event } from "../models/event";
-import { EventFilters } from "../models/event-filters";
+import { FacetsRecord, FilterName, ActiveFacetsRecord } from "../models/event-filters";
+import { ToastService } from "../../../ui/toast/services/toast.service";
 
 interface EventsListState {
     items: Event[];
@@ -20,8 +21,14 @@ export class EventsStore {
     private api = inject(EventsService);
 
     // --- Filtres ---
-    private filtersState = signal<EventFilters>({});
-    filters = this.filtersState.asReadonly();
+    private facetsState = signal<FacetsRecord>({});
+    facets = this.facetsState.asReadonly();
+
+    filters: ActiveFacetsRecord = {
+        address_city: [],
+        address_name: [],
+        address_zipcode: [],
+    };
 
     // --- State liste (scroll infini) ---
     private listState = signal<EventsListState>({
@@ -39,8 +46,16 @@ export class EventsStore {
     hasMore = computed(() => this.listState().hasMore);
     listError = computed(() => this.listState().error);
 
-    setFilters(filters: EventFilters): void {
-        this.filtersState.set(filters);
+    private toastService = inject(ToastService);
+
+    setFilters(filterName: FilterName, filterValue: string): void {
+        if (this.filters[filterName]?.includes(filterValue)) {
+            const valueIndex = this.filters[filterName].indexOf(filterValue);
+            this.filters[filterName].splice(valueIndex, 1);
+        } else {
+            this.filters[filterName]?.push(filterValue);
+        }
+
         this.resetList();
         this.loadNextPage();
     }
@@ -56,7 +71,7 @@ export class EventsStore {
         }));
 
         this.api
-            .getEvents(this.filtersState(), { limit: current.limit })
+            .getEvents(this.filters, { limit: current.limit })
             .pipe(
                 tap(response => {
                     const results = response.results ?? [];
@@ -91,5 +106,14 @@ export class EventsStore {
 
     getEventsMapUrl(): string {
         return this.api.getEventsMap();
+    }
+
+    async getFacets(): Promise<void> {
+        try {
+            const facets = await this.api.getFacetsList();
+            this.facetsState.set(facets);
+        } catch {
+            this.toastService.error("Erreur lors du chargement des filtres");
+        }
     }
 }

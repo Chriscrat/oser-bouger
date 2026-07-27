@@ -12,12 +12,12 @@
 >
     <div class="fr-sidemenu__inner">
         <div class="fr-collapse">
-            <div class="sidebar__header">
+            <div class="sidebar__header fr-p-4v">
                 <div
-                    class="fr-sidemenu__title"
                     id="search-filter-sidemenu"
+                    class="fr-sidemenu__title"
                 >
-                    Filtres de recherche
+                    <ng-content select="[sidemenu-title]" />
                 </div>
                 <button
                     class="fr-btn fr-btn--close fr-icon-close-line"
@@ -27,26 +27,7 @@
                     Fermer
                 </button>
             </div>
-            <ul class="fr-sidemenu__list">
-                @for (filter of filters(); track filter.name) {
-                    <li class="fr-sidemenu__item">
-                        <button
-                            aria-expanded="false"
-                            [aria-controls]="`sidemenu-${filter.name}`"
-                            type="button"
-                            class="fr-sidemenu__btn"
-                        >
-                            {{ filter.name }}
-                        </button>
-                        <div
-                            class="fr-collapse"
-                            [id]="`sidemenu-${filter.name}`"
-                        >
-                            <app-event-filter [filter]="filter"></app-event-filter>
-                        </div>
-                    </li>
-                }
-            </ul>
+            <ng-content select="[sidemenu-content]"/>
         </div>
     </div>
 </nav>

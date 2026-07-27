@@ -1,7 +1,7 @@
 import { Injectable, inject, signal, computed } from "@angular/core";
 import { EMPTY, catchError, finalize, tap } from "rxjs";
 import { EventsService } from "./events.service";
-import { Event } from "../models/event";
+import { Event, EventView } from "../models/event";
 import { FacetsRecord, FilterName, ActiveFacetsRecord } from "../models/event-filters";
 import { ToastService } from "../../../ui/toast/services/toast.service";
 
@@ -29,6 +29,8 @@ export class EventsStore {
         address_name: [],
         address_zipcode: [],
     };
+
+    currentView: EventView = "list";
 
     // --- State liste (scroll infini) ---
     private listState = signal<EventsListState>({
@@ -115,5 +117,9 @@ export class EventsStore {
         } catch {
             this.toastService.error("Erreur lors du chargement des filtres");
         }
+    }
+
+    updateView(view: EventView) {
+        this.currentView = view;
     }
 }

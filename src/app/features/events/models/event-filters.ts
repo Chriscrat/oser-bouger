@@ -1,20 +1,21 @@
 export interface EventFilters {
-    category?: string;
-    dateFrom?: string;
-    dateTo?: string;
-    bounds?: { north: number; south: number; east: number; west: number };
+    name: FilterName;
+    label?: string;
+    filters?: Filter[];
 }
 
 export interface PaginationParams {
     limit: number;
 }
 
-export interface EventFilters2 {
+export interface Filter {
     name: string;
-    filters: Filter[];
+    active: true;
+    count: number;
 }
 
-export interface Filter {
-    text: string;
-    value: string;
-}
+export type FilterName = "address_name" | "address_zipcode" | "address_city";
+
+export type FacetsRecord = Partial<Record<FilterName, Filter[]>>;
+
+export type ActiveFacetsRecord = Partial<Record<FilterName, string[]>>;

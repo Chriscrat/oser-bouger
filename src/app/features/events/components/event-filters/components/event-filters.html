@@ -1,0 +1,23 @@
+<ul class="fr-sidemenu__list">
+    @for (filter of filters(); track filter.name) {
+        <li class="fr-sidemenu__item fr-pt-4v">
+            <button
+                aria-expanded="false"
+                [aria-controls]="`sidemenu-${filter.name}`"
+                type="button"
+                class="fr-sidemenu__btn"
+            >
+                {{ filter.label }}
+            </button>
+            <div
+                class="fr-collapse"
+                [id]="`sidemenu-${filter.name}`" 
+            >
+                <app-event-filter
+                    [filter]="filter"
+                    [onUpdate]="updateFilter"
+                ></app-event-filter>
+            </div>
+        </li>
+    }
+</ul>

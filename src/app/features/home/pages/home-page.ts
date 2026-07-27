@@ -3,10 +3,12 @@ import { Alert } from "../../../ui/alert/components/alert";
 import { Hero } from "../../home/components/hero/hero";
 import { EventList } from "../../events/components/event-list/event-list";
 import { Sidemenu } from "../../../ui/sidemenu/components/sidemenu";
+import { EventFilters } from "../../events/components/event-filters/components/event-filters";
+
 @Component({
     selector: "app-home-page",
     standalone: true,
-    imports: [Alert, Hero, EventList, Sidemenu],
+    imports: [Alert, Hero, EventList, Sidemenu, EventFilters],
     templateUrl: "./home-page.html",
     styleUrl: "./home.scss",
 })

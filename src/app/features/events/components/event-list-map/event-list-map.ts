@@ -12,6 +12,6 @@ export class EventListMap {
     store = inject(EventsStore);
     private sanitizer = inject(DomSanitizer);
 
-    mapUrl = computed<string>(() => this.store.getEventsMapUrl());
+    mapUrl = computed<string>(() => this.store.mapUrl);
     trustedMapUrl = computed(() => this.sanitizer.bypassSecurityTrustResourceUrl(this.mapUrl()));
 }

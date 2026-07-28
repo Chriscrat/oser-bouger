@@ -3,11 +3,8 @@
         <div class="fr-container--fluid">
             <div class="fr-grid-row">
                 <div class="fr-col-12">
-                    <div
-                        [hidden]="currentView !== 'list'"
-                        class="fr-text--lg fr-text--bold"
-                    >
-                        {{ store.events().length }} évènement(s) affiché(s)
+                    <div class="fr-text--lg fr-text--bold">
+                        {{ totalRecordText() }}
                     </div>
                 </div>
                 <div class="fr-col-6 fr-col-md-3">
@@ -27,11 +24,11 @@
             </div>
         </div>
     </div>
-    <div [hidden]="currentView !== 'list'">
+    <div [hidden]="currentView() !== 'list'">
         <app-event-list-cards></app-event-list-cards>
     </div>
     @if (mapMounted) {
-        <div [hidden]="currentView !== 'map'">
+        <div [hidden]="currentView() !== 'map'">
             <app-event-list-map></app-event-list-map>
         </div>
     }

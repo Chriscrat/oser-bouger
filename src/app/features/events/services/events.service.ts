@@ -1,7 +1,7 @@
 import { inject, Injectable } from "@angular/core";
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { Observable } from "rxjs";
-import { EventListModel } from "../models/event";
+import { EventListModel, EventView } from "../models/event";
 import {
     Filter,
     FacetsRecord,
@@ -23,11 +23,15 @@ export class EventsService {
         pagination: PaginationParams
     ): Observable<EventListModel> {
         return this.http.get<EventListModel>(this.eventListUrl, {
-            params: this.buildParams(filters, pagination),
+            params: this.buildParams(filters, "list", pagination),
         });
     }
 
-    private buildParams(filters: ActiveFacetsRecord, pagination?: PaginationParams): HttpParams {
+    private buildParams(
+        filters: ActiveFacetsRecord,
+        view: EventView,
+        pagination?: PaginationParams
+    ): HttpParams {
         let params = new HttpParams();
 
         (Object.keys(filters) as FilterName[]).forEach(filter => {
@@ -36,7 +40,22 @@ export class EventsService {
                 return;
             }
             values.forEach(value => {
-                params = params.set("refine", `${filter}:${value}`);
+                const key = view === "list" ? "refine" : `refine.${filter}`;
+                const paramValue = view === "list" ? `${filter}:${value}` : value;
+                const existing = params.getAll(key) || [];
+
+                if (existing.includes(paramValue)) {
+                    // remove the existing occurrence
+                    params = params.delete(key);
+                    existing
+                        .filter(v => v !== paramValue)
+                        .forEach(v => {
+                            params = params.append(key, v);
+                        });
+                } else {
+                    // allow multiple occurrences
+                    params = params.append(key, paramValue);
+                }
             });
         });
 
@@ -46,11 +65,15 @@ export class EventsService {
         return params;
     }
 
-    getEventsMap() {
+    getEventsMap(filters: ActiveFacetsRecord) {
+        const additionalFilters = this.buildParams(filters, "map");
+        const paramsQuery = additionalFilters.toString()
+            ? `&${decodeURIComponent(additionalFilters.toString())}`
+            : "";
         const disjunctiveList =
             "?disjunctive.tags&disjunctive.address_name&disjunctive.address_zipcode&disjunctive.address_city&disjunctive.pmr&disjunctive.blind&disjunctive.deaf&disjunctive.price_type&disjunctive.access_type&disjunctive.programs";
         const location = "&location=9,48.73355,2.45819";
-        return encodeURI(`${this.mapUrl}/${disjunctiveList}${location}`);
+        return encodeURI(`${this.mapUrl}/${disjunctiveList}${location}${paramsQuery}`);
     }
 
     private buildFacetsApiUrl(): string {

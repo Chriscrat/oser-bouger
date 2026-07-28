@@ -49,6 +49,7 @@ export class EventsStore {
     listError = computed(() => this.listState().error);
 
     private toastService = inject(ToastService);
+    mapUrl = this.getEventsMapUrl();
 
     setFilters(filterName: FilterName, filterValue: string): void {
         if (this.filters[filterName]?.includes(filterValue)) {
@@ -60,6 +61,7 @@ export class EventsStore {
 
         this.resetList();
         this.loadNextPage();
+        this.mapUrl = this.getEventsMapUrl();
     }
 
     loadNextPage(): void {
@@ -107,7 +109,7 @@ export class EventsStore {
     }
 
     getEventsMapUrl(): string {
-        return this.api.getEventsMap();
+        return this.api.getEventsMap(this.filters);
     }
 
     async getFacets(): Promise<void> {

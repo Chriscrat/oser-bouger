@@ -9,7 +9,7 @@
         class="fr-label"
         [for]="title()"
     >
-        {{ title() }}
+        <ng-content select='[checkbox-text]'></ng-content>
     </label>
     <div
         class="fr-messages-group"

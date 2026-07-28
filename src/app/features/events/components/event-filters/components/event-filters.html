@@ -9,15 +9,22 @@
             >
                 {{ filter.label }}
             </button>
-            <div
-                class="fr-collapse"
-                [id]="`sidemenu-${filter.name}`" 
-            >
-                <app-event-filter
-                    [filter]="filter"
-                    [onUpdate]="updateFilter"
-                ></app-event-filter>
+            <div class="fr-collapse" [id]="`sidemenu-${filter.name}`">
+                <app-event-filter [filter]="filter" [onUpdate]="updateFilter"></app-event-filter>
             </div>
         </li>
     }
+    <li>
+        <div class="fr-container fr-mt-8v">
+            <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--right">
+                <button
+                    type="button"
+                    class="fr-btn fr-icon-delete-line fr-btn--icon-left"
+                    (click)="resetFilters()"
+                >
+                    Supprimer les filtres
+                </button>
+            </div>
+        </div>
+    </li>
 </ul>

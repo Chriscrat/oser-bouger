@@ -108,6 +108,15 @@ export class EventsStore {
         });
     }
 
+    resetFilters() {
+        (Object.keys(this.filters) as FilterName[]).forEach((key: FilterName): void => {
+            this.filters[key] = [];
+        });
+        this.resetList();
+        this.loadNextPage();
+        this.mapUrl = this.getEventsMapUrl();
+    }
+
     getEventsMapUrl(): string {
         return this.api.getEventsMap(this.filters);
     }

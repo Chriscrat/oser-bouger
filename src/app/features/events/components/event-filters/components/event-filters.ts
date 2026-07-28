@@ -38,4 +38,8 @@ export class EventFilters implements OnInit {
             this.store.setFilters(filterName, filterValue);
         }
     }
+
+    resetFilters = (): void => {
+        this.store.resetFilters();
+    };
 }

@@ -14,7 +14,8 @@ export default {
                 "events",
                 "card",
                 "map",
-                "filters"
+                "filters",
+                "build",
             ],
         ],
     },

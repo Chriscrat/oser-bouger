@@ -13,7 +13,8 @@ export default {
                 "event-list",
                 "events",
                 "card",
-                "map"
+                "map",
+                "filters"
             ],
         ],
     },

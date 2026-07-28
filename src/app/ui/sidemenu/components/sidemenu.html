@@ -1,0 +1,52 @@
+@if (isOpen()) {
+    <div class="sidebar-backdrop" (click)="close()"></div>
+}
+<nav
+    id="sidemenu-filters"
+    class="fr-sidemenu sidebar fr-p-2v"
+    [class.sidebar--open]="isOpen()"
+    [attr.inert]="isOpen() ? null : ''"
+    role="navigation"
+    aria-labelledby="search-filter-sidemenu"
+    [attr.aria-modal]="isOpen() ? true : null"
+>
+    <div class="fr-sidemenu__inner">
+        <div class="fr-collapse">
+            <div class="sidebar__header">
+                <div
+                    class="fr-sidemenu__title"
+                    id="search-filter-sidemenu"
+                >
+                    Filtres de recherche
+                </div>
+                <button
+                    class="fr-btn fr-btn--close fr-icon-close-line"
+                    type="button"
+                    (click)="close()"
+                >
+                    Fermer
+                </button>
+            </div>
+            <ul class="fr-sidemenu__list">
+                @for (filter of filters(); track filter.name) {
+                    <li class="fr-sidemenu__item">
+                        <button
+                            aria-expanded="false"
+                            [aria-controls]="`sidemenu-${filter.name}`"
+                            type="button"
+                            class="fr-sidemenu__btn"
+                        >
+                            {{ filter.name }}
+                        </button>
+                        <div
+                            class="fr-collapse"
+                            [id]="`sidemenu-${filter.name}`"
+                        >
+                            <app-event-filter [filter]="filter"></app-event-filter>
+                        </div>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+</nav>

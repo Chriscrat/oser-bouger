@@ -1,0 +1,18 @@
+<div class="fr-checkbox-group">
+    <input  
+        [id]="title()"
+        type="checkbox"
+        aria-describedby="checkbox-messages"
+    />
+    <label
+        class="fr-label"
+        [for]="title()"
+    >
+        {{ title() }}
+    </label>
+    <div
+        class="fr-messages-group"
+        id="checkbox-messages"
+        aria-live="polite"
+    ></div>
+</div>

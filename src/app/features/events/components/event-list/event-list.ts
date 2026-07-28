@@ -13,6 +13,7 @@ import { ToastService } from "../../../../ui/toast/services/toast.service";
 import { ButtonGroup } from "../../../../ui/button-group/components/button-group";
 import { EventView } from "../../models/event";
 import { ButtonGroupModel } from "../../../../ui/button-group/models/button-group";
+import { SidemenuService } from "../../../../ui/sidemenu/services/sidemenu.service";
 @Component({
     selector: "app-event-list",
     imports: [Card, Alert, InfiniteScrollDirective, Modal, EventCover, EventDetails, ButtonGroup],
@@ -21,6 +22,7 @@ import { ButtonGroupModel } from "../../../../ui/button-group/models/button-grou
 })
 export class EventList implements OnInit {
     store = inject(EventsStore);
+    sidemenuService = inject(SidemenuService);
 
     ngOnInit(): void {
         this.store.loadNextPage();

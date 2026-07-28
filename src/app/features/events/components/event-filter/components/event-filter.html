@@ -1,0 +1,11 @@
+<fieldset
+    class="fr-fieldset fr-p-2v"
+    id="checkboxes"
+    aria-labelledby="checkboxes-legend checkboxes-messages"
+>
+    @for(inputFilter of filter().filters; track filter.name) {
+        <div class="fr-fieldset__element">
+            <app-checkbox [title]="inputFilter.text" ></app-checkbox>
+        </div>
+    }
+</fieldset>

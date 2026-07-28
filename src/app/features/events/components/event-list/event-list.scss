@@ -3,11 +3,10 @@
     position: sticky;
     z-index: 10;
     padding: 1.5rem 0 1.5rem 0;
-    &__content {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
+    .app-button-group {
+        .fr-segmenter {
+            float: right;
+        }
     }
 }
 

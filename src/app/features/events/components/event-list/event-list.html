@@ -1,12 +1,30 @@
 <div class="fr-container fr-background-alt--grey fr-px-md-2 fr-pb-6v fr-pb-md-10v">
     <div class="fr-sticky-container fr-background-alt--grey">
-        <div class="fr-sticky-container__content">
-            <div class="fr-text--sm fr-text--bold">
-                {{ store.events().length }} évènement(s) affiché(s)
+        <div class="fr-container--fluid">
+            <div class="fr-grid-row">
+                <div class="fr-col-12">
+                    <div class="fr-text--lg fr-text--bold">
+                        {{ store.events().length }} évènement(s) affiché(s)
+                    </div>
+                </div>
+                <div class="fr-col-6 fr-col-md-3">
+                    <button
+                        class="fr-btn fr-btn--md fr-icon-filter-fill fr-btn--icon-left fr-mt-8v"
+                        type="button"
+                        aria-controls="sidemenu-filters"
+                        [attr.aria-expanded]="sidemenuService.isOpen()"
+                        (click)="sidemenuService.toggle()"
+                    >
+                        Filtres
+                    </button>
+                </div>
+                <div class="fr-col-6 fr-col-offset-md-7 fr-col-md-2">
+                    <app-button-group [buttonGroup]="buttons"></app-button-group>
+                </div>
             </div>
-            <app-button-group [buttonGroup]="buttons"></app-button-group>
         </div>
     </div>
+
     <div [hidden]="currentView !== 'list'">
         @if (store.events().length > 0) {
             <div class="fr-grid-row fr-grid-row--gutters">

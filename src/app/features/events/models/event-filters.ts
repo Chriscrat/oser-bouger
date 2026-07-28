@@ -8,3 +8,13 @@ export interface EventFilters {
 export interface PaginationParams {
     limit: number;
 }
+
+export interface EventFilters2 {
+    name: string;
+    filters: Filter[];
+}
+
+export interface Filter {
+    text: string;
+    value: string;
+}

@@ -1,0 +1,8 @@
+.fr-sidemenu__item{
+    &:before {
+        box-shadow: unset;
+    }
+    &:first-child:before {
+        box-shadow: unset;
+    }
+}

@@ -7,6 +7,7 @@ import { EventFilter } from "../../event-filter/components/event-filter";
     selector: "app-event-filters",
     templateUrl: "./event-filters.html",
     imports: [EventFilter],
+    styleUrl: "./event-filters.scss",
 })
 export class EventFilters implements OnInit {
     store = inject(EventsStore);

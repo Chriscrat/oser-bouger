@@ -32,7 +32,6 @@
 
 .fr-sidemenu {
     margin-right: unset;
-    // padding: 2rem;
     &__inner {
         padding: unset;
         box-shadow: unset;
@@ -43,5 +42,6 @@
 
     &__title {
         margin: unset;
+        box-shadow: unset;
     }
 }

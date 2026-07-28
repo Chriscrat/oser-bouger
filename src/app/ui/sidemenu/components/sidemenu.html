@@ -11,23 +11,21 @@
     [attr.aria-modal]="isOpen() ? true : null"
 >
     <div class="fr-sidemenu__inner">
-        <div class="fr-collapse">
-            <div class="sidebar__header fr-p-4v">
-                <div
-                    id="search-filter-sidemenu"
-                    class="fr-sidemenu__title"
-                >
-                    <ng-content select="[sidemenu-title]" />
-                </div>
-                <button
-                    class="fr-btn fr-btn--close fr-icon-close-line"
-                    type="button"
-                    (click)="close()"
-                >
-                    Fermer
-                </button>
+        <div class="sidebar__header fr-p-4v">
+            <div
+                id="search-filter-sidemenu"
+                class="fr-sidemenu__title"
+            >
+                <ng-content select="[sidemenu-title]" />
             </div>
-            <ng-content select="[sidemenu-content]"/>
+            <button
+                class="fr-btn fr-btn--close fr-icon-close-line"
+                type="button"
+                (click)="close()"
+            >
+                Fermer
+            </button>
         </div>
+        <ng-content select="[sidemenu-content]"/>
     </div>
 </nav>

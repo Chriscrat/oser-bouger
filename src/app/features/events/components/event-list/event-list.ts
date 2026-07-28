@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit } from "@angular/core";
+import { Component, computed, inject, OnInit, signal } from "@angular/core";
 import { DomSanitizer } from "@angular/platform-browser";
 
 import { EventsStore } from "../../services/events.store";
@@ -39,10 +39,15 @@ export class EventList implements OnInit {
         this.toastService.info("Récupération de nouveaux évènements ...");
     }
 
-    currentView: EventView = "list";
+    currentView = signal<EventView>("list");
+    totalRecordText = computed<string>(() =>
+        this.currentView() === "list"
+            ? `${this.store.events().length} sur ${this.store.total()} évènement(s) affiché(s)`
+            : `${this.store.total()} évènement(s) disponible(s)`
+    );
     mapMounted = false;
     toggleEventView = (view: string): void => {
-        this.currentView = view as EventView;
+        this.currentView.set(view as EventView);
         if (view === "map") {
             this.mapMounted = true;
         }

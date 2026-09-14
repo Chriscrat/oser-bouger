@@ -61,6 +61,7 @@ export class EventsService {
 
         if (pagination) {
             params = params.set("limit", pagination.limit);
+            params = params.set("offset", pagination.offset);
         }
         return params;
     }

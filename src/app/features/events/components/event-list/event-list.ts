@@ -1,9 +1,8 @@
-import { Component, computed, inject, OnInit, signal } from "@angular/core";
+import { Component, computed, inject, signal } from "@angular/core";
 import { DomSanitizer } from "@angular/platform-browser";
 
 import { EventsStore } from "../../services/events.store";
 import { mapEventToCardDetails } from "../../mappers/event-card.mapper";
-import { ToastService } from "../../../../ui/toast/services/toast.service";
 import { ButtonGroup } from "../../../../ui/button-group/components/button-group";
 import { EventView } from "../../models/event";
 import { ButtonGroupModel } from "../../../../ui/button-group/models/button-group";
@@ -16,13 +15,9 @@ import { EventListMap } from "../event-list-map/event-list-map";
     templateUrl: "./event-list.html",
     styleUrl: "./event-list.scss",
 })
-export class EventList implements OnInit {
+export class EventList {
     store = inject(EventsStore);
     sidemenuService = inject(SidemenuService);
-
-    ngOnInit(): void {
-        this.store.loadNextPage();
-    }
 
     private sanitizer = inject(DomSanitizer);
 
@@ -31,13 +26,6 @@ export class EventList implements OnInit {
 
     events = computed(() => this.store.events().map(mapEventToCardDetails));
     buttonModalTitle = "Voir plus";
-
-    private toastService = inject(ToastService);
-
-    onScrollEnd(): void {
-        this.store.loadNextPage();
-        this.toastService.info("Récupération de nouveaux évènements ...");
-    }
 
     currentView = signal<EventView>("list");
     totalRecordText = computed<string>(() =>

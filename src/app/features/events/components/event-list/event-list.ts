@@ -29,9 +29,7 @@ export class EventList {
 
     currentView = signal<EventView>("list");
     totalRecordText = computed<string>(() =>
-        this.currentView() === "list"
-            ? `${this.store.events().length} sur ${this.store.total()} évènement(s) affiché(s)`
-            : `${this.store.total()} évènement(s) disponible(s)`
+        this.currentView() === "map" ? `${this.store.total()} évènement(s) disponible(s)` : ""
     );
     mapMounted = false;
     toggleEventView = (view: string): void => {

@@ -9,8 +9,11 @@ export interface Event {
     cover_alt: string;
     cover_credit: string;
     date_description: string;
+    date_start: string;
     audience: string;
     price_type: string;
+    price_detail: string;
+    qfap_tags: string | null;
     pmr: number | null;
     blind: number | null;
     deaf: number | null;
@@ -48,7 +51,7 @@ export interface AccessibilityTagConfig {
 
 export type FormatedEvent = Pick<
     Event,
-    "id" | "title" | "description" | "url" | "date_description"
+    "id" | "title" | "description" | "url" | "date_description" | "date_start"
 > & {
     cover?: {
         url: string | null;
@@ -77,9 +80,11 @@ export type FormatedEvent = Pick<
         instagram: string | null;
     };
     tags?: {
-        ["audience"]: string | null;
-        ["accessibility"]: AccessibilityTagConfig[] | [];
-        ["priceType"]: string | null;
+        audience: string | null;
+        accessibility: AccessibilityTagConfig[] | [];
+        priceType: string | null;
+        priceDetail: string | null;
+        category: string | null;
     } | null;
 };
 

@@ -8,6 +8,5 @@ import { ThemeToggle } from "./ui/theme-toggle/components/theme-toggle";
     selector: "app-root",
     imports: [Header, Footer, RouterOutlet, ThemeToggle],
     templateUrl: "./app.html",
-    styleUrl: "./app.scss",
 })
 export class App {}

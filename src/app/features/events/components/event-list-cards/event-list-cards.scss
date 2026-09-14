@@ -1,0 +1,28 @@
+.fr-card__content {
+    >:first-child {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+
+    .title {
+        display: -webkit-box;
+        line-clamp: 3;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        text-overflow: ellipsis;
+        max-height: 100px;
+        overflow: hidden;
+    }
+
+    .fr-card__tags {
+        display: flex;
+        flex-direction: column;
+        margin-top: auto;
+        .fr-card__tag-details {
+            display: flex;
+            flex-direction: row;
+            gap: 1rem;
+        }
+    }
+}

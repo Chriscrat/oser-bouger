@@ -113,8 +113,8 @@ export class EventsStore {
         try {
             const facets = await this.api.getFacetsList();
             this.facetsState.set(facets);
-        } catch {
-            console.log(`Erreur lors du chargement des filtres`);
+        } catch (error) {
+            console.error("Error", error);
         }
     }
 

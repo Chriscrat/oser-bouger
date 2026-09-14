@@ -1,0 +1,79 @@
+<nav
+    role="navigation"
+    class="fr-pagination"
+    aria-label="pagination"
+    [attr.data-fr-analytics-page-total]="totalPage()"
+>
+    <ul class="fr-pagination__list">
+        <li>
+            <a
+                class="fr-pagination__link fr-pagination__link--first"
+                title="Première page"
+                role="link"
+                [attr.aria-disabled]="isFirstPage() ? 'true' : null"
+                [routerLink]="!isFirstPage() ? [] : null"
+                [queryParams]="{ page: 1 }"
+                queryParamsHandling="merge"
+            >
+                Première page
+            </a>
+        </li>
+        <li>
+            <a
+                class="fr-pagination__link fr-pagination__link--prev fr-pagination__link--lg-label"
+                title="Page précédente"
+                role="link"
+                [attr.aria-disabled]="!hasPreviousPage() ? 'true' : null"
+                [routerLink]="hasPreviousPage() ? [] : null"
+                [queryParams]="{ page: page() - 1 }"
+                queryParamsHandling="merge"
+            >
+                Page précédente
+            </a>
+        </li>
+        @for (item of paginationItems(); track $index) {
+            <li>
+                @if (item.type === "page") {
+                    <a
+                        class="fr-pagination__link"
+                        [attr.aria-current]="item.page === page() ? 'page' : null"
+                        [attr.title]="'Page ' + item.page"
+                        [routerLink]="[]"
+                        [queryParams]="{ page: item.page }"
+                        queryParamsHandling="merge"
+                    >
+                        {{ item.page }}
+                    </a>
+                } @else {
+                    <span class="fr-pagination__link">…</span>
+                }
+            </li>
+        }
+
+        <li>
+            <a
+                class="fr-pagination__link fr-pagination__link--next fr-pagination__link--lg-label"
+                id="pagination-6519"
+                title="Page suivante"
+                [attr.aria-disabled]="!hasNextPage() ? 'true' : null"
+                [routerLink]="hasNextPage() ? [] : null"
+                [queryParams]="{ page: page() + 1 }"
+                queryParamsHandling="merge"
+            >
+                Page suivante
+            </a>
+        </li>
+        <li>
+            <a
+                class="fr-pagination__link fr-pagination__link--last"
+                title="Dernière page"
+                [attr.aria-disabled]="isLastPage() ? 'true' : null"
+                [routerLink]="!isLastPage() ? [] : null"
+                [queryParams]="{ page: totalPage() }"
+                queryParamsHandling="merge"
+            >
+                Dernière page
+            </a>
+        </li>
+    </ul>
+</nav>

@@ -7,7 +7,7 @@ export type accessibilityIcons =
     | "eye-off";
 type systemIcons = "external-link";
 type arrowsIcons = "arrow-right";
-type mapIcons = "road-map" | "earth";
+type mapIcons = "road-map" | "earth" | "map-pin-2";
 type userIcons = "team";
 type financeIcons = "money-euro-circle";
 type notificationIcons = "checkbox-circle" | "error-warning" | "alert" | "information";
@@ -24,6 +24,8 @@ export type socialNetworkIcons =
     | "youtube"
     | "mail";
 
+type businessIcons = "calendar-event";
+
 export type iconClass =
     | accessibilityIcons
     | systemIcons
@@ -32,7 +34,8 @@ export type iconClass =
     | userIcons
     | financeIcons
     | notificationIcons
-    | socialNetworkIcons;
+    | socialNetworkIcons
+    | businessIcons;
 
 export type iconStyle = "fill" | "line";
 export type iconSize = "xs" | "md" | "lg";

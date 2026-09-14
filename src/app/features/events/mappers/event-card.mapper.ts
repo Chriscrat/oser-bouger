@@ -15,6 +15,7 @@ export function mapEventToCardDetails(event: Event): FormatedEvent {
         url: event.url,
         description: event.description,
         date_description: event.date_description,
+        date_start: event.date_start,
         cover: {
             url: event.cover_url,
             alt: event.cover_alt,
@@ -44,11 +45,17 @@ export function mapEventToCardDetails(event: Event): FormatedEvent {
         tags: {
             audience: event.audience,
             accessibility: buildAccessibilityTags(event),
-            priceType: event.price_type,
+            priceType: capitalizeFirstLetter(event.price_type),
+            priceDetail: event.price_detail,
+            category: event.qfap_tags,
         },
     };
 }
 
 function buildAccessibilityTags(event: Event): AccessibilityTagConfig[] {
     return ACCESSIBILITY_TAGS.filter(({ key }) => !!event[key] && event[key] === 1);
+}
+
+function capitalizeFirstLetter(val: string): string {
+    return String(val).charAt(0).toUpperCase() + String(val).slice(1);
 }

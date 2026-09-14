@@ -9,6 +9,5 @@ import { ToastContainer } from "./ui/toast/components/toast-container";
     selector: "app-root",
     imports: [Header, Footer, RouterOutlet, ThemeToggle, ToastContainer],
     templateUrl: "./app.html",
-    styleUrl: "./app.scss",
 })
 export class App {}

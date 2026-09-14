@@ -10,9 +10,11 @@ import { Modal } from "../../../../ui/modal/components/modal";
 import { EventCover } from "../event-cover/event-cover";
 import { EventDetails } from "../event-details/event-details";
 import { Pagination } from "../../../../ui/pagination/components/pagination";
+import { Icon } from "../../../../ui/icon/components/icon";
 @Component({
     selector: "app-event-list-cards",
-    imports: [Alert, Card, Modal, EventCover, EventDetails, Pagination],
+    imports: [Alert, Card, Modal, EventCover, EventDetails, Pagination, Icon],
+    styleUrl: "./event-list-cards.scss",
     templateUrl: "./event-list-cards.html",
 })
 export class EventListCards implements OnInit {
@@ -33,4 +35,8 @@ export class EventListCards implements OnInit {
 
     eventsPerPage = computed<number>(() => this.store.pageSize);
     totalEvents = computed<number>(() => this.store.total());
+
+    getFormatDate(date: string) {
+        return new Date(date).toLocaleDateString();
+    }
 }

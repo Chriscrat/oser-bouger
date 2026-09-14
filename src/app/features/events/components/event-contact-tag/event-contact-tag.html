@@ -40,7 +40,13 @@
             icon="money-euro-circle"
             color="red"
         >
-            {{ event().tags?.priceType }}
+            <div>
+                @if (event().tags?.priceDetail) {
+                    <i [innerHTML]="event().tags?.priceDetail"></i>
+                } @else {
+                    {{ event().tags?.priceType}}
+                }
+            </div>
         </app-tag>
     }
 </div>

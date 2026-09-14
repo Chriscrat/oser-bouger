@@ -4,7 +4,7 @@ import { EMPTY, catchError, finalize, tap } from "rxjs";
 import { EventsService } from "./events.service";
 import { Event, EventView } from "../models/event";
 import { FacetsRecord, FilterName, ActiveFacetsRecord } from "../models/event-filters";
-import { ToastService } from "../../../ui/toast/services/toast.service";
+// import { ToastService } from "../../../ui/toast/services/toast.service";
 
 interface EventsListState {
     items: Event[];
@@ -49,7 +49,7 @@ export class EventsStore {
     listLoading = computed(() => this.listState().loading);
     listError = computed(() => this.listState().error);
 
-    private toastService = inject(ToastService);
+    // private toastService = inject(ToastService);
     mapUrl = this.getEventsMapUrl();
 
     async setFilters(filterName: FilterName, filterValue: string): Promise<void> {
@@ -115,8 +115,9 @@ export class EventsStore {
         try {
             const facets = await this.api.getFacetsList();
             this.facetsState.set(facets);
-        } catch {
-            this.toastService.error("Erreur lors du chargement des filtres");
+        } catch (error) {
+            console.error("Error", error);
+            // this.toastService.error("Erreur lors du chargement des filtres");
         }
     }
 

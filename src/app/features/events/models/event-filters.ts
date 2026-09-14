@@ -6,6 +6,7 @@ export interface EventFilters {
 
 export interface PaginationParams {
     limit: number;
+    offset: number;
 }
 
 export interface Filter {

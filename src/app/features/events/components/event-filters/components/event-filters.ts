@@ -34,13 +34,13 @@ export class EventFilters implements OnInit {
         return result;
     });
 
-    updateFilter(filterName: FilterName | undefined, filterValue: string) {
+    resetFilters = (): void => {
+        void this.store.resetFilters();
+    };
+
+    async updateFilter(filterName: FilterName | undefined, filterValue: string) {
         if (filterName) {
-            this.store.setFilters(filterName, filterValue);
+            await this.store.setFilters(filterName, filterValue);
         }
     }
-
-    resetFilters = (): void => {
-        this.store.resetFilters();
-    };
 }

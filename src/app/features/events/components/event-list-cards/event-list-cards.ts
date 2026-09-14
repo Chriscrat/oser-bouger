@@ -1,35 +1,36 @@
-import { Component, computed, inject, OnInit } from "@angular/core";
+import { Component, computed, DestroyRef, inject, OnInit } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { ActivatedRoute } from "@angular/router";
 
 import { Alert } from "../../../../ui/alert/components/alert";
 import { Card } from "../../../../ui/card/components/card";
-import { InfiniteScrollDirective } from "../../../../ui/directives/infinite-scroll.directive";
 import { EventsStore } from "../../services/events.store";
 import { mapEventToCardDetails } from "../../mappers/event-card.mapper";
 import { Modal } from "../../../../ui/modal/components/modal";
 import { EventCover } from "../event-cover/event-cover";
 import { EventDetails } from "../event-details/event-details";
-import { ToastService } from "../../../../ui/toast/services/toast.service";
-
+import { Pagination } from "../../../../ui/pagination/components/pagination";
 @Component({
     selector: "app-event-list-cards",
-    imports: [Alert, Card, InfiniteScrollDirective, Modal, EventCover, EventDetails],
+    imports: [Alert, Card, Modal, EventCover, EventDetails, Pagination],
     templateUrl: "./event-list-cards.html",
 })
 export class EventListCards implements OnInit {
     store = inject(EventsStore);
+    private route = inject(ActivatedRoute);
+    private destroyRef = inject(DestroyRef);
 
     ngOnInit(): void {
-        this.store.loadNextPage();
+        this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
+            const page = Number(params.get("page")) || 1;
+            void this.store.goToPage(page);
+        });
     }
 
     alertNoEventFound = { description: "Aucun évènement trouvé" };
     events = computed(() => this.store.events().map(mapEventToCardDetails));
     buttonModalTitle = "Voir plus";
 
-    private toastService = inject(ToastService);
-
-    onScrollEnd(): void {
-        this.store.loadNextPage();
-        this.toastService.info("Récupération de nouveaux évènements ...");
-    }
+    eventsPerPage = computed<number>(() => this.store.pageSize);
+    totalEvents = computed<number>(() => this.store.total());
 }

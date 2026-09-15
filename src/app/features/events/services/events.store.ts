@@ -4,7 +4,7 @@ import { EMPTY, catchError, finalize, tap } from "rxjs";
 import { EventsService } from "./events.service";
 import { Event, EventView } from "../models/event";
 import { FacetsRecord, FilterName, ActiveFacetsRecord } from "../models/event-filters";
-
+import { queryParamsToFilters, filtersToQueryParams } from "../mappers/filter-url.mapper";
 interface EventsListState {
     items: Event[];
     total: number;
@@ -17,6 +17,8 @@ export class EventsStore {
     private api = inject(EventsService);
     private router = inject(Router);
     private route = inject(ActivatedRoute);
+    private initial = queryParamsToFilters(this.route.snapshot.queryParamMap);
+    private initialPage = Number(this.route.snapshot.queryParamMap.get("page")) || 1;
 
     pageSize = 20;
 
@@ -24,10 +26,11 @@ export class EventsStore {
     private facetsState = signal<FacetsRecord>({});
     facets = this.facetsState.asReadonly();
 
+    private readonly filterNames: FilterName[] = this.api.getFilters();
+
     filters: ActiveFacetsRecord = {
-        address_city: [],
-        address_name: [],
-        address_zipcode: [],
+        ...Object.fromEntries(this.filterNames.map(filterName => [filterName, [] as string[]])),
+        ...this.initial,
     };
 
     currentView: EventView = "list";
@@ -40,7 +43,7 @@ export class EventsStore {
         error: null,
     });
 
-    private currentPageState = signal(1);
+    private currentPageState = signal(this.initialPage);
     currentPage = this.currentPageState;
 
     events = computed(() => this.listState().items);
@@ -58,6 +61,13 @@ export class EventsStore {
             this.filters[filterName]?.push(filterValue);
         }
 
+        const params = filtersToQueryParams(this.filters);
+        const page = this.currentPage;
+        await this.router.navigate([], {
+            queryParams: { page, ...params },
+            replaceUrl: true,
+            queryParamsHandling: "",
+        });
         await this.goToPage(1);
         this.mapUrl = this.getEventsMapUrl();
     }
@@ -69,7 +79,6 @@ export class EventsStore {
         this.listState.update(s => ({ ...s, loading: true, error: null }));
 
         const offset = (page - 1) * this.pageSize;
-
         this.api
             .getEvents(this.filters, { limit: this.pageSize, offset })
             .pipe(
@@ -82,17 +91,23 @@ export class EventsStore {
                         total: totalCount,
                     }));
                 }),
-                catchError(err => {
-                    this.listState.update(s => ({ ...s, error: `Erreur de chargement: ${err}` }));
+                catchError((err: unknown) => {
+                    const message = err instanceof Error ? err.message : String(err);
+                    this.listState.update(s => ({
+                        ...s,
+                        error: `Erreur de chargement: ${message}`,
+                    }));
                     return EMPTY;
                 }),
                 finalize(() => this.listState.update(s => ({ ...s, loading: false })))
             )
             .subscribe();
 
+        const params = filtersToQueryParams(this.filters);
+
         await this.router.navigate([], {
             relativeTo: this.route,
-            queryParams: { page },
+            queryParams: { page, ...params },
             queryParamsHandling: "merge",
         });
     }
@@ -100,6 +115,11 @@ export class EventsStore {
     async resetFilters() {
         (Object.keys(this.filters) as FilterName[]).forEach((key: FilterName): void => {
             this.filters[key] = [];
+        });
+        await this.router.navigate([], {
+            queryParams: { page: 1 },
+            replaceUrl: true,
+            queryParamsHandling: "",
         });
         await this.goToPage(1);
         this.mapUrl = this.getEventsMapUrl();

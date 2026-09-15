@@ -13,11 +13,24 @@ import { environment } from "../../../environments/environment";
 
 @Injectable({ providedIn: "root" })
 export class EventsService {
+    private datasetId = "que-faire-a-paris-";
+    private timezone = "Europe%2FParis";
+    private language = "fr";
+    private coordinates = [9, 48.73355, 2.45819];
+
     private http = inject(HttpClient);
     private eventListUrl = `${environment.catalogApi}`;
     private mapUrl = `${environment.mapApi}`;
     private facetsUrl = `${environment.facetsApi}`;
-    private FILTERS_ENUM: FilterName[] = ["address_name", "address_zipcode", "address_city"];
+    private FILTERS_ENUM: FilterName[] = [
+        "address_name",
+        "address_zipcode",
+        "address_city",
+        "price_type",
+        "deaf",
+        "blind",
+        "pmr",
+    ];
     getEvents(
         filters: ActiveFacetsRecord,
         pagination: PaginationParams
@@ -71,9 +84,11 @@ export class EventsService {
         const paramsQuery = additionalFilters.toString()
             ? `&${decodeURIComponent(additionalFilters.toString())}`
             : "";
-        const disjunctiveList =
-            "?disjunctive.tags&disjunctive.address_name&disjunctive.address_zipcode&disjunctive.address_city&disjunctive.pmr&disjunctive.blind&disjunctive.deaf&disjunctive.price_type&disjunctive.access_type&disjunctive.programs";
-        const location = "&location=9,48.73355,2.45819";
+
+        const disjunctiveList = this.FILTERS_ENUM.map(
+            (filter, index) => (index >= 1 ? "&" : "?") + `disjunctive.${filter}`
+        ).join("");
+        const location = `&location=${this.coordinates.join(",")}`;
         return encodeURI(`${this.mapUrl}/${disjunctiveList}${location}${paramsQuery}`);
     }
 
@@ -81,12 +96,13 @@ export class EventsService {
         const disjunctiveFilters = this.FILTERS_ENUM.map(
             (filter, index) => (index >= 1 ? "&" : "?") + `disjunctive.${filter}=true`
         ).join("");
-        const facets = "&facet=tags&facet=address_name&facet=address_zipcode&facet=address_city";
-        const facetsSort =
-            "&facetsort.tags=alphanum&facetsort.address_name=alphanum&facetsort.address_zipcode=alphanum&facetsort.address_city=alphanum";
-        const dataset = "&dataset=que-faire-a-paris-";
-        const timezone = "&timezone=Europe%2FParis";
-        const language = "&lang=fr";
+        const facets = this.FILTERS_ENUM.map(filter => `&facet=${filter}`).join("");
+        const facetsSort = this.FILTERS_ENUM.map(filter => `&facetsort.${filter}=alphanum`).join(
+            ""
+        );
+        const dataset = `&dataset=${this.datasetId}`;
+        const timezone = `&timezone=${this.timezone}`;
+        const language = `&lang=${this.language}`;
 
         return `${this.facetsUrl}${disjunctiveFilters}${facets}${facetsSort}${dataset}${timezone}${language}`;
     }
@@ -111,5 +127,9 @@ export class EventsService {
             facet_groups: Array<{ name: string; facets: Filter[] }>;
         };
         return this.buildFilterList(facetsData);
+    }
+
+    getFilters(): FilterName[] {
+        return this.FILTERS_ENUM;
     }
 }

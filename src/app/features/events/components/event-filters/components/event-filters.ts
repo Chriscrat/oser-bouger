@@ -16,9 +16,13 @@ export class EventFilters implements OnInit {
     }
 
     private FILTERS = {
-        address_name: "Adresse",
+        address_name: "Nom du lieu",
         address_zipcode: "Code postal",
         address_city: "Ville",
+        price_type: "Type de prix",
+        deaf: "Accès mal entendant",
+        blind: "Accès mal voyant",
+        pmr: "Accès PMR",
     };
     filters = computed<EventFiltersModel[]>(() => {
         const facets = this.store.facets();

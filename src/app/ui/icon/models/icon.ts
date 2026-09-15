@@ -6,7 +6,7 @@ export type accessibilityIcons =
     | "wheelchair"
     | "eye-off";
 type systemIcons = "external-link";
-type arrowsIcons = "arrow-right";
+type arrowsIcons = "arrow-right" | "arrow-left";
 type mapIcons = "road-map" | "earth" | "map-pin-2";
 type userIcons = "team";
 type financeIcons = "money-euro-circle";

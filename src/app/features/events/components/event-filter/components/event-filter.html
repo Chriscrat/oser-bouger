@@ -3,16 +3,18 @@
     id="checkboxes"
     aria-labelledby="checkboxes-legend checkboxes-messages"
 >
-    @for (inputFilter of filter().filters; track inputFilter.name) {
-        <div class="fr-fieldset__element fr-px-8v">
-            <app-checkbox
-                [title]="inputFilter.name"
-                (checkedChange)="onUpdate(filter().name, inputFilter.name)"
-            >
-                <div checkbox-text>
-                    {{ inputFilter.name }} ( {{ inputFilter.count}} )
-                </div>
-            </app-checkbox>
-        </div>
+    @if(filter().label) {
+        @for (inputFilter of filter().filters ?? []; track filter().name + $index) {
+            <div class="fr-fieldset__element fr-px-8v">
+                <app-checkbox
+                    [title]="filter().label+inputFilter.name+$index"
+                    (checkedChange)="onUpdate(filter().name, inputFilter.name)"
+                >
+                    <div checkbox-text>
+                        {{ translateValue(inputFilter.name) }} ( {{ inputFilter.count}} )
+                    </div>
+                </app-checkbox>
+            </div>
+        }
     }
 </fieldset>

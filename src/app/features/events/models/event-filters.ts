@@ -15,7 +15,8 @@ export interface Filter {
     count: number;
 }
 
-export type FilterName = "address_name" | "address_zipcode" | "address_city";
+export type FilterName =
+    "address_name" | "address_zipcode" | "address_city" | "price_type" | "deaf" | "pmr" | "blind";
 
 export type FacetsRecord = Partial<Record<FilterName, Filter[]>>;
 

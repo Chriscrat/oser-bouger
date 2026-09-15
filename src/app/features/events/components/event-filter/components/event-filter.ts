@@ -11,4 +11,13 @@ export class EventFilter {
     filter = input.required<EventFilters>();
     store = inject(EventsStore);
     @Input() onUpdate!: (filter: FilterName, value: string) => void;
+
+    translateValue(name: string): string {
+        const labels: Record<string, string> = {
+            "0": "Non",
+            "1": "Oui",
+        };
+
+        return labels[name] ? labels[name] : name;
+    }
 }

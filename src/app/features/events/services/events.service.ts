@@ -40,6 +40,19 @@ export class EventsService {
         });
     }
 
+    getEvent(eventId: string): Observable<EventListModel> {
+        const eventUrl = this.buildEventUrl(eventId);
+        return this.http.get<EventListModel>(eventUrl);
+    }
+
+    private buildEventUrl(eventId: string): string {
+        const where = `?where=id${encodeURIComponent("=" + eventId)}`;
+        const timezone = `&timezone=${this.timezone}`;
+        const language = `&lang=${this.language}`;
+
+        return `${this.eventListUrl}${where}${timezone}${language}`;
+    }
+
     private buildParams(
         filters: ActiveFacetsRecord,
         view: EventView,

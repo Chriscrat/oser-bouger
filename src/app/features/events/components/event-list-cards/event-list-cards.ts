@@ -6,14 +6,11 @@ import { Alert } from "../../../../ui/alert/components/alert";
 import { Card } from "../../../../ui/card/components/card";
 import { EventsStore } from "../../services/events.store";
 import { mapEventToCardDetails } from "../../mappers/event-card.mapper";
-import { Modal } from "../../../../ui/modal/components/modal";
-import { EventCover } from "../event-cover/event-cover";
-import { EventDetails } from "../event-details/event-details";
 import { Pagination } from "../../../../ui/pagination/components/pagination";
 import { Icon } from "../../../../ui/icon/components/icon";
 @Component({
     selector: "app-event-list-cards",
-    imports: [Alert, Card, Modal, EventCover, EventDetails, Pagination, Icon],
+    imports: [Alert, Card, Pagination, Icon],
     styleUrl: "./event-list-cards.scss",
     templateUrl: "./event-list-cards.html",
 })
@@ -31,7 +28,7 @@ export class EventListCards implements OnInit {
 
     alertNoEventFound = { description: "Aucun évènement trouvé" };
     events = computed(() => this.store.events().map(mapEventToCardDetails));
-    buttonModalTitle = "Voir plus";
+    buttonTitle = "Voir plus";
 
     eventsPerPage = computed<number>(() => this.store.pageSize);
     totalEvents = computed<number>(() => this.store.total());

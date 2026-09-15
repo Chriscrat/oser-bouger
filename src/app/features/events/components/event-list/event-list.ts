@@ -25,8 +25,6 @@ export class EventList {
     trustedMapUrl = computed(() => this.sanitizer.bypassSecurityTrustResourceUrl(this.mapUrl()));
 
     events = computed(() => this.store.events().map(mapEventToCardDetails));
-    buttonModalTitle = "Voir plus";
-
     currentView = signal<EventView>("list");
     totalRecordText = computed<string>(() =>
         this.currentView() === "map" ? `${this.store.total()} évènement(s) disponible(s)` : ""

@@ -1,8 +1,15 @@
 import { Routes } from "@angular/router";
 
+import { HomePage } from "../app/features/home/pages/home-page";
+import { EventPage } from "./features/events/pages/event-page";
+
 export const routes: Routes = [
     {
         path: "",
-        loadComponent: () => import("../app/features/home/pages/home-page").then(m => m.HomePage),
+        component: HomePage,
+    },
+    {
+        path: "event/:id",
+        component: EventPage,
     },
 ];

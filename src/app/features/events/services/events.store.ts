@@ -2,7 +2,7 @@ import { Injectable, inject, signal, computed } from "@angular/core";
 import { Router, ActivatedRoute } from "@angular/router";
 import { EMPTY, catchError, finalize, tap } from "rxjs";
 import { EventsService } from "./events.service";
-import { Event, EventView } from "../models/event";
+import { Event, EventListModel, EventView } from "../models/event";
 import { FacetsRecord, FilterName, ActiveFacetsRecord } from "../models/event-filters";
 import { queryParamsToFilters, filtersToQueryParams } from "../mappers/filter-url.mapper";
 interface EventsListState {
@@ -53,6 +53,9 @@ export class EventsStore {
 
     mapUrl = this.getEventsMapUrl();
 
+    private currentEventState = signal<Event | null>(null);
+    currentEvent = this.currentEventState.asReadonly();
+
     async setFilters(filterName: FilterName, filterValue: string): Promise<void> {
         if (this.filters[filterName]?.includes(filterValue)) {
             const valueIndex = this.filters[filterName].indexOf(filterValue);
@@ -66,7 +69,6 @@ export class EventsStore {
         await this.router.navigate([], {
             queryParams: { page, ...params },
             replaceUrl: true,
-            queryParamsHandling: "",
         });
         await this.goToPage(1);
         this.mapUrl = this.getEventsMapUrl();
@@ -140,5 +142,14 @@ export class EventsStore {
 
     updateView(view: EventView) {
         this.currentView = view;
+    }
+
+    fetchEvent(eventId: string): void {
+        this.api.getEvent(eventId).subscribe({
+            next: (data: EventListModel) => {
+                this.currentEventState.set(data.results?.[0] ?? null);
+            },
+            error: err => console.error("Error fetching events:", err),
+        });
     }
 }

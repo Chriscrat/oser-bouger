@@ -7,6 +7,7 @@ import { Component, input, output } from "@angular/core";
 export class Checkbox {
     title = input.required<string>();
     checkedChange = output<boolean>();
+    isChecked = input<boolean>();
 
     onChange(event: Event): void {
         this.checkedChange.emit((event.target as HTMLInputElement).checked);

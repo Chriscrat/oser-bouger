@@ -3,6 +3,7 @@
         [id]="title()"
         type="checkbox"
         aria-describedby="checkbox-messages"
+        [checked]="isChecked()"
         (change)="onChange($event)"
     />
     <label

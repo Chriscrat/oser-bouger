@@ -2,7 +2,7 @@ import { Injectable, inject, signal, computed } from "@angular/core";
 import { Router, ActivatedRoute } from "@angular/router";
 import { EMPTY, catchError, finalize, tap } from "rxjs";
 import { EventsService } from "./events.service";
-import { Event, EventListModel, EventView } from "../models/event";
+import { Category, CategoryListModel, Event, EventListModel, EventView } from "../models/event";
 import { FacetsRecord, FilterName, ActiveFacetsRecord } from "../models/event-filters";
 // import { ToastService } from "../../../ui/toast/services/toast.service";
 import { queryParamsToFilters, filtersToQueryParams } from "../mappers/filter-url.mapper";
@@ -57,6 +57,9 @@ export class EventsStore {
 
     private currentEventState = signal<Event | null>(null);
     currentEvent = this.currentEventState.asReadonly();
+
+    private categoryListState = signal<Category[] | null>(null);
+    categoryList = computed(() => this.tagCounts(this.categoryListState()));
 
     async setFilters(filterName: FilterName, filterValue: string): Promise<void> {
         if (this.filters[filterName]?.includes(filterValue)) {
@@ -154,5 +157,34 @@ export class EventsStore {
             },
             error: err => console.error("Error fetching events:", err),
         });
+    }
+
+    fetchCategoryList(): void {
+        this.api.getCategoryList().subscribe({
+            next: (data: CategoryListModel) => {
+                if (data.results !== null) {
+                    this.categoryListState.set(data.results);
+                }
+            },
+            error: err => console.error("Error fetching events:", err),
+        });
+    }
+
+    private tagCounts(categoryData: Category[] | null): { name: string; count: number }[] {
+        const counts = new Map<string, number>();
+        if (categoryData) {
+            for (const item of categoryData) {
+                for (const tag of item.qfap_tags?.split(";") ?? []) {
+                    const name = tag.trim();
+                    if (name) {
+                        counts.set(name, (counts.get(name) ?? 0) + 1);
+                    }
+                }
+            }
+        }
+        const result = Array.from(counts.entries())
+            .sort(([, countA], [, countB]) => countB - countA)
+            .map(([name, count]) => ({ name, count }));
+        return result;
     }
 }

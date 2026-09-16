@@ -50,6 +50,14 @@ export class EventsService {
         return this.http.get<EventListModel>(url.toString());
     }
 
+    getCategoryList(): Observable<EventListModel> {
+        const field = "qfap_tags";
+        const url = new URL(this.eventListUrl);
+        url.searchParams.set("select", field);
+        url.searchParams.set("group_by", field);
+        return this.http.get<EventListModel>(url.toString());
+    }
+
     private buildFiltersParameters(
         filters: ActiveFacetsRecord,
         view: EventView,

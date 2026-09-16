@@ -89,3 +89,12 @@ export type FormatedEvent = Pick<
 };
 
 export type EventView = "list" | "map";
+
+export type Category = {
+    qfap_tags: string | null;
+};
+
+export interface CategoryListModel {
+    total_count: number;
+    results: Category[] | null;
+}

@@ -1,4 +1,5 @@
-import { Injectable, inject, signal, computed } from "@angular/core";
+import { Injectable, inject, signal, computed, effect } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { Router, ActivatedRoute } from "@angular/router";
 import { EMPTY, catchError, finalize, tap } from "rxjs";
 import { EventsService } from "./events.service";
@@ -17,8 +18,11 @@ export class EventsStore {
     private api = inject(EventsService);
     private router = inject(Router);
     private route = inject(ActivatedRoute);
-    private initial = queryParamsToFilters(this.route.snapshot.queryParamMap);
-    private initialPage = Number(this.route.snapshot.queryParamMap.get("page")) || 1;
+    private queryParams = toSignal(this.route.queryParamMap, {
+        initialValue: this.route.snapshot.queryParamMap,
+    });
+    private initial = computed(() => queryParamsToFilters(this.queryParams()));
+    private initialPage = computed(() => Number(this.queryParams().get("page")) || 1);
 
     pageSize = 20;
 
@@ -30,7 +34,7 @@ export class EventsStore {
 
     filters: ActiveFacetsRecord = {
         ...Object.fromEntries(this.filterNames.map(filterName => [filterName, [] as string[]])),
-        ...this.initial,
+        ...this.initial(),
     };
 
     currentView: EventView = "list";
@@ -43,7 +47,7 @@ export class EventsStore {
         error: null,
     });
 
-    private currentPageState = signal(this.initialPage);
+    private currentPageState = signal(this.initialPage());
     currentPage = this.currentPageState;
 
     events = computed(() => this.listState().items);
@@ -58,6 +62,18 @@ export class EventsStore {
 
     private categoryListState = signal<Category[] | null>(null);
     categoryList = computed(() => this.tagCounts(this.categoryListState()));
+
+    constructor() {
+        effect(() => {
+            this.filters = {
+                ...Object.fromEntries(
+                    this.filterNames.map(filterName => [filterName, [] as string[]])
+                ),
+                ...this.initial(),
+            };
+            this.currentPageState.set(this.initialPage());
+        });
+    }
 
     async setFilters(filterName: FilterName, filterValue: string): Promise<void> {
         if (this.filters[filterName]?.includes(filterValue)) {

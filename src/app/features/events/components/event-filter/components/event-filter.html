@@ -8,6 +8,7 @@
             <div class="fr-fieldset__element fr-px-8v">
                 <app-checkbox
                     [title]="filter().label+inputFilter.name+$index"
+                    [isChecked]="isExistInUrl(filter().name, inputFilter.name)"
                     (checkedChange)="onUpdate(filter().name, inputFilter.name)"
                 >
                     <div checkbox-text>

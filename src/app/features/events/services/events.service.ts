@@ -14,7 +14,7 @@ import { environment } from "../../../environments/environment";
 @Injectable({ providedIn: "root" })
 export class EventsService {
     private datasetId = "que-faire-a-paris-";
-    private timezone = "Europe%2FParis";
+    private timezone = "Europe/Paris";
     private language = "fr";
     private coordinates = [9, 48.73355, 2.45819];
 
@@ -31,29 +31,26 @@ export class EventsService {
         "blind",
         "pmr",
     ];
+
     getEvents(
         filters: ActiveFacetsRecord,
         pagination: PaginationParams
     ): Observable<EventListModel> {
         return this.http.get<EventListModel>(this.eventListUrl, {
-            params: this.buildParams(filters, "list", pagination),
+            params: this.buildFiltersParameters(filters, "list", pagination),
         });
     }
 
     getEvent(eventId: string): Observable<EventListModel> {
-        const eventUrl = this.buildEventUrl(eventId);
-        return this.http.get<EventListModel>(eventUrl);
+        const url = new URL(this.eventListUrl);
+        url.searchParams.set("where", `id=${eventId}`);
+        url.searchParams.set("timezone", "Europe/Paris");
+        url.searchParams.set("lang", this.language);
+
+        return this.http.get<EventListModel>(url.toString());
     }
 
-    private buildEventUrl(eventId: string): string {
-        const where = `?where=id${encodeURIComponent("=" + eventId)}`;
-        const timezone = `&timezone=${this.timezone}`;
-        const language = `&lang=${this.language}`;
-
-        return `${this.eventListUrl}${where}${timezone}${language}`;
-    }
-
-    private buildParams(
+    private buildFiltersParameters(
         filters: ActiveFacetsRecord,
         view: EventView,
         pagination?: PaginationParams
@@ -93,31 +90,18 @@ export class EventsService {
     }
 
     getEventsMap(filters: ActiveFacetsRecord) {
-        const additionalFilters = this.buildParams(filters, "map");
-        const paramsQuery = additionalFilters.toString()
-            ? `&${decodeURIComponent(additionalFilters.toString())}`
-            : "";
-
         const disjunctiveList = this.FILTERS_ENUM.map(
             (filter, index) => (index >= 1 ? "&" : "?") + `disjunctive.${filter}`
         ).join("");
-        const location = `&location=${this.coordinates.join(",")}`;
-        return encodeURI(`${this.mapUrl}/${disjunctiveList}${location}${paramsQuery}`);
-    }
 
-    private buildFacetsApiUrl(): string {
-        const disjunctiveFilters = this.FILTERS_ENUM.map(
-            (filter, index) => (index >= 1 ? "&" : "?") + `disjunctive.${filter}=true`
-        ).join("");
-        const facets = this.FILTERS_ENUM.map(filter => `&facet=${filter}`).join("");
-        const facetsSort = this.FILTERS_ENUM.map(filter => `&facetsort.${filter}=alphanum`).join(
-            ""
-        );
-        const dataset = `&dataset=${this.datasetId}`;
-        const timezone = `&timezone=${this.timezone}`;
-        const language = `&lang=${this.language}`;
+        const url = new URL(this.mapUrl + `/${disjunctiveList}`);
+        url.searchParams.set("location", this.coordinates.join(","));
 
-        return `${this.facetsUrl}${disjunctiveFilters}${facets}${facetsSort}${dataset}${timezone}${language}`;
+        const additionalFilters = this.buildFiltersParameters(filters, "map");
+        const paramsQuery = additionalFilters.toString()
+            ? `&${decodeURIComponent(additionalFilters.toString())}`
+            : "";
+        return `${url.toString()}${encodeURI(paramsQuery)}`;
     }
 
     private buildFilterList(facetsData: {
@@ -134,7 +118,20 @@ export class EventsService {
     }
 
     async getFacetsList(): Promise<FacetsRecord> {
-        const facetsApiUrl = this.buildFacetsApiUrl();
+        const disjunctiveFilters = this.FILTERS_ENUM.map(
+            (filter, index) => (index >= 1 ? "&" : "?") + `disjunctive.${filter}=true`
+        ).join("");
+        const facets = this.FILTERS_ENUM.map(filter => `&facet=${filter}`).join("");
+        const facetsSort = this.FILTERS_ENUM.map(filter => `&facetsort.${filter}=alphanum`).join(
+            ""
+        );
+
+        const url = new URL(this.facetsUrl + disjunctiveFilters + facets + facetsSort);
+        url.searchParams.set("dataset", this.datasetId);
+        url.searchParams.set("timezone", this.timezone);
+        url.searchParams.set("lang", this.language);
+
+        const facetsApiUrl = url.toString();
         const result = await fetch(facetsApiUrl);
         const facetsData = (await result.json()) as {
             facet_groups: Array<{ name: string; facets: Filter[] }>;

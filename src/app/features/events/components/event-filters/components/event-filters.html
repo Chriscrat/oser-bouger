@@ -1,12 +1,12 @@
 @if (categories()) {
     <div class="fr-container--fluid fr-mb-8v fr-mx-4v">
-        <h5 class="fr-text--md">
+        <h5 class="fr-text--md fr-mb-4v">
             Catégories populaires :
         </h5>
         @for (category of categories(); track category.name) {
             <button
                 type="button"
-                class="fr-tag fr-m-1v"
+                class="fr-tag fr-tag--sm fr-m-1v"
                 [aria-pressed]="isChecked('qfap_tags', category.name)"
                 (click)="filterByTag('qfap_tags', category.name)"
             >
@@ -17,14 +17,14 @@
 }
 
 @if (priceTypes()) {
-    <div class="fr-container--fluid fr-mb-8v fr-mx-4v">
-        <h5 class="fr-text--md">
+    <div class="fr-container--fluid fr-mx-4v">
+        <h5 class="fr-text--md fr-mb-4v">
             Type de prix :
         </h5>
         @for (price of priceTypes(); track price.name) {
             <button
                 type="button"
-                class="fr-tag fr-m-1v"
+                class="fr-tag fr-tag--sm fr-m-1v"
                 [aria-pressed]="isChecked('price_type', price.name)"
                 (click)="filterByTag('price_type', price.name)"
             >

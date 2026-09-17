@@ -66,6 +66,17 @@ export class EventsStore {
         error: null,
     });
 
+    FILTER_LIST = {
+        address_name: { name: "Nom du lieu", displayed: true },
+        address_zipcode: { name: "Code postal", displayed: true },
+        address_city: { name: "Ville", displayed: true },
+        price_type: { name: "Type de prix", displayed: false },
+        deaf: { name: "Accès malentendant", displayed: true },
+        blind: { name: "Nom mal voyant", displayed: true },
+        pmr: { name: "Accès PMR", displayed: true },
+        qfap_tags: { name: "Catégorie", displayed: false },
+    };
+
     private currentPageState = signal(this.initialPage());
     currentPage = this.currentPageState;
 

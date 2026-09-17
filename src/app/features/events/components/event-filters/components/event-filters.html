@@ -1,3 +1,39 @@
+@if (categories()) {
+    <div class="fr-container--fluid fr-mb-8v fr-mx-4v">
+        <h5 class="fr-text--md">
+            Catégories populaires :
+        </h5>
+        @for (category of categories(); track category.name) {
+            <button
+                type="button"
+                class="fr-tag fr-m-1v"
+                [aria-pressed]="isChecked('qfap_tags', category.name)"
+                (click)="filterByTag('qfap_tags', category.name)"
+            >
+                {{ category.name }} ({{ category.count }})
+            </button>
+        }
+    </div>
+}
+
+@if (priceTypes()) {
+    <div class="fr-container--fluid fr-mb-8v fr-mx-4v">
+        <h5 class="fr-text--md">
+            Type de prix :
+        </h5>
+        @for (price of priceTypes(); track price.name) {
+            <button
+                type="button"
+                class="fr-tag fr-m-1v"
+                [aria-pressed]="isChecked('price_type', price.name)"
+                (click)="filterByTag('price_type', price.name)"
+            >
+                {{ price.name }} ({{ price.count }})
+            </button>
+        }
+    </div>
+}
+
 <ul class="fr-sidemenu__list">
     @for (filter of filters(); track filter.name) {
         <li class="fr-sidemenu__item fr-pt-4v">

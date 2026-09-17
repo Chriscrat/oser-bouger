@@ -1,4 +1,4 @@
-import { ActiveFacetsRecord } from "../models/event-filters";
+import { ActiveFacetsRecord, TagsModel } from "../models/event-filters";
 import { Params, ParamMap } from "@angular/router";
 
 export function filtersToQueryParams(filters: ActiveFacetsRecord): Params {
@@ -22,9 +22,15 @@ export function queryParamsToFilters(paramMap: ParamMap): ActiveFacetsRecord {
         address_name: paramMap.getAll("address_name"),
         address_zipcode: paramMap.getAll("address_zipcode"),
         address_city: paramMap.getAll("address_city"),
-        price_type: paramMap.getAll("price_type"),
         deaf: paramMap.getAll("deaf"),
         blind: paramMap.getAll("blind"),
         pmr: paramMap.getAll("pmr"),
+    };
+}
+
+export function queryTagsToFilters(paramMap: ParamMap): TagsModel {
+    return {
+        qfap_tags: paramMap.getAll("qfap_tags"),
+        price_type: paramMap.getAll("price_type"),
     };
 }

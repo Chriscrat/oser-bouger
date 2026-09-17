@@ -2,6 +2,7 @@ export interface EventFilters {
     name: FilterName;
     label?: string;
     filters?: Filter[];
+    displayed: boolean;
 }
 
 export interface PaginationParams {
@@ -21,3 +22,7 @@ export type FilterName =
 export type FacetsRecord = Partial<Record<FilterName, Filter[]>>;
 
 export type ActiveFacetsRecord = Partial<Record<FilterName, string[]>>;
+
+export type TagName = "qfap_tags" | "price_type";
+
+export type TagsModel = Record<TagName, string[]>;

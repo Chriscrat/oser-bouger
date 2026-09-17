@@ -3,9 +3,26 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { Router, ActivatedRoute } from "@angular/router";
 import { EMPTY, catchError, finalize, tap } from "rxjs";
 import { EventsService } from "./events.service";
-import { Category, CategoryListModel, Event, EventListModel, EventView } from "../models/event";
-import { FacetsRecord, FilterName, ActiveFacetsRecord } from "../models/event-filters";
-import { queryParamsToFilters, filtersToQueryParams } from "../mappers/filter-url.mapper";
+import {
+    Category,
+    CategoryListModel,
+    Event,
+    EventListModel,
+    EventView,
+    QfapTags,
+} from "../models/event";
+import {
+    FacetsRecord,
+    FilterName,
+    ActiveFacetsRecord,
+    TagsModel,
+    TagName,
+} from "../models/event-filters";
+import {
+    queryParamsToFilters,
+    queryTagsToFilters,
+    filtersToQueryParams,
+} from "../mappers/filter-url.mapper";
 interface EventsListState {
     items: Event[];
     total: number;
@@ -21,8 +38,9 @@ export class EventsStore {
     private queryParams = toSignal(this.route.queryParamMap, {
         initialValue: this.route.snapshot.queryParamMap,
     });
-    private initial = computed(() => queryParamsToFilters(this.queryParams()));
+    private initialFilters = computed(() => queryParamsToFilters(this.queryParams()));
     private initialPage = computed(() => Number(this.queryParams().get("page")) || 1);
+    private initialTags = computed(() => queryTagsToFilters(this.queryParams()));
 
     pageSize = 20;
 
@@ -34,7 +52,7 @@ export class EventsStore {
 
     filters: ActiveFacetsRecord = {
         ...Object.fromEntries(this.filterNames.map(filterName => [filterName, [] as string[]])),
-        ...this.initial(),
+        ...this.initialFilters(),
     };
 
     currentView: EventView = "list";
@@ -60,8 +78,14 @@ export class EventsStore {
     private currentEventState = signal<Event | null>(null);
     currentEvent = this.currentEventState.asReadonly();
 
-    private categoryListState = signal<Category[] | null>(null);
+    private categoryListState = signal<QfapTags[] | null>(null);
     categoryList = computed(() => this.tagCounts(this.categoryListState()));
+
+    private currentTagsState = signal<TagsModel>({
+        qfap_tags: [],
+        price_type: [],
+    });
+    currentTags = this.currentTagsState.asReadonly();
 
     constructor() {
         effect(() => {
@@ -69,9 +93,10 @@ export class EventsStore {
                 ...Object.fromEntries(
                     this.filterNames.map(filterName => [filterName, [] as string[]])
                 ),
-                ...this.initial(),
+                ...this.initialFilters(),
             };
             this.currentPageState.set(this.initialPage());
+            this.currentTagsState.set(this.initialTags());
         });
     }
 
@@ -84,6 +109,14 @@ export class EventsStore {
         }
 
         const params = filtersToQueryParams(this.filters);
+        Object.entries(this.currentTags()).forEach(([key, value]) => {
+            if (value.length > 0) {
+                params[key as TagName] = value;
+            } else {
+                delete params[key as TagName];
+            }
+        });
+
         const page = this.currentPage;
         await this.router.navigate([], {
             queryParams: { page, ...params },
@@ -101,7 +134,7 @@ export class EventsStore {
 
         const offset = (page - 1) * this.pageSize;
         this.api
-            .getEvents(this.filters, { limit: this.pageSize, offset })
+            .getEvents(this.filters, { limit: this.pageSize, offset }, this.currentTags())
             .pipe(
                 tap(response => {
                     const results = response.results ?? [];
@@ -124,11 +157,9 @@ export class EventsStore {
             )
             .subscribe();
 
-        const params = filtersToQueryParams(this.filters);
-
         await this.router.navigate([], {
             relativeTo: this.route,
-            queryParams: { page, ...params },
+            queryParams: { page },
             queryParamsHandling: "merge",
         });
     }
@@ -183,7 +214,7 @@ export class EventsStore {
         });
     }
 
-    private tagCounts(categoryData: Category[] | null): { name: string; count: number }[] {
+    private tagCounts(categoryData: QfapTags[] | null): Category[] {
         const counts = new Map<string, number>();
         if (categoryData) {
             for (const item of categoryData) {
@@ -199,5 +230,28 @@ export class EventsStore {
             .sort(([, countA], [, countB]) => countB - countA)
             .map(([name, count]) => ({ name, count }));
         return result;
+    }
+
+    async filterByTag(tag: TagName, value: string): Promise<void> {
+        const params = filtersToQueryParams(this.filters);
+        const page = this.currentPage;
+        this.currentTagsState.update(tags => ({
+            ...tags,
+            [tag]: tags[tag].includes(value)
+                ? tags[tag].filter(tagValue => tagValue !== value)
+                : [...tags[tag], value],
+        }));
+        Object.entries(this.currentTags()).forEach(([key, value]) => {
+            if (value.length > 0) {
+                params[key as TagName] = value;
+            } else {
+                delete params[key as TagName];
+            }
+        });
+        await this.router.navigate([], {
+            queryParams: { page, ...params },
+            replaceUrl: true,
+        });
+        await this.goToPage(1);
     }
 }

@@ -8,6 +8,7 @@ import {
     ActiveFacetsRecord,
     PaginationParams,
     FilterName,
+    TagsModel,
 } from "../models/event-filters";
 import { environment } from "../../../environments/environment";
 
@@ -34,10 +35,11 @@ export class EventsService {
 
     getEvents(
         filters: ActiveFacetsRecord,
-        pagination: PaginationParams
+        pagination: PaginationParams,
+        tags: TagsModel
     ): Observable<EventListModel> {
         return this.http.get<EventListModel>(this.eventListUrl, {
-            params: this.buildFiltersParameters(filters, "list", pagination),
+            params: this.buildFiltersParameters(filters, "list", pagination, tags),
         });
     }
 
@@ -61,7 +63,8 @@ export class EventsService {
     private buildFiltersParameters(
         filters: ActiveFacetsRecord,
         view: EventView,
-        pagination?: PaginationParams
+        pagination?: PaginationParams,
+        tags?: Record<string, string[]>
     ): HttpParams {
         let params = new HttpParams();
 
@@ -89,6 +92,23 @@ export class EventsService {
                 }
             });
         });
+
+        if (tags) {
+            const tagEntries = Object.entries(tags).filter(
+                ([, values]: [string, string[]]) => values.length > 0
+            );
+            if (tagEntries.length) {
+                const whereCategory = tagEntries.map(([key, values]: [string, string[]]) =>
+                    values.map((value: string): string => `${key} like '${value}'`).join(" OR ")
+                );
+
+                if (whereCategory.length) {
+                    params = params.set("where", `(${whereCategory.join(") AND (")})`);
+                } else {
+                    params = params.set("where", `(${whereCategory.join("")})`);
+                }
+            }
+        }
 
         if (pagination) {
             params = params.set("limit", pagination.limit);

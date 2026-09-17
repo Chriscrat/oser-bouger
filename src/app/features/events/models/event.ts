@@ -90,11 +90,16 @@ export type FormatedEvent = Pick<
 
 export type EventView = "list" | "map";
 
-export type Category = {
+export type QfapTags = {
     qfap_tags: string | null;
 };
 
 export interface CategoryListModel {
     total_count: number;
-    results: Category[] | null;
+    results: QfapTags[] | null;
 }
+
+export type Category = {
+    name: string;
+    count: number;
+};

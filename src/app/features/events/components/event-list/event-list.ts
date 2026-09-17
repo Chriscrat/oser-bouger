@@ -1,5 +1,8 @@
 import { Component, computed, inject, signal } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { DomSanitizer } from "@angular/platform-browser";
+import { ActivatedRoute } from "@angular/router";
+import { KeyValuePipe } from "@angular/common";
 
 import { EventsStore } from "../../services/events.store";
 import { mapEventToCardDetails } from "../../mappers/event-card.mapper";
@@ -9,15 +12,19 @@ import { ButtonGroupModel } from "../../../../ui/button-group/models/button-grou
 import { SidemenuService } from "../../../../ui/sidemenu/services/sidemenu.service";
 import { EventListCards } from "../event-list-cards/event-list-cards";
 import { EventListMap } from "../event-list-map/event-list-map";
+import { FilterName, TagName } from "../../models/event-filters";
+
+type ActiveFilter = Partial<Record<TagName | FilterName, { name: string; values: string[] }>>;
 @Component({
     selector: "app-event-list",
-    imports: [ButtonGroup, EventListCards, EventListMap],
+    imports: [ButtonGroup, EventListCards, EventListMap, KeyValuePipe],
     templateUrl: "./event-list.html",
     styleUrl: "./event-list.scss",
 })
 export class EventList {
     store = inject(EventsStore);
     sidemenuService = inject(SidemenuService);
+    route = inject(ActivatedRoute);
 
     private sanitizer = inject(DomSanitizer);
 
@@ -52,4 +59,40 @@ export class EventList {
             },
         ],
     };
+
+    urlParamters = toSignal(this.route.queryParams, {
+        initialValue: this.route.snapshot.queryParams,
+    });
+
+    activeFilters = computed<ActiveFilter>((): ActiveFilter => {
+        const filters: ActiveFilter = {};
+
+        for (const [key, values] of Object.entries(this.urlParamters())) {
+            if (key === "page") {
+                continue;
+            }
+
+            const filterKey = key as TagName;
+            const filter = this.store.FILTER_LIST[filterKey];
+            const filterValues = (Array.isArray(values) ? values : [values]).filter(
+                (value): value is string => value !== null && value !== undefined
+            );
+
+            filters[filterKey] = {
+                name: filter?.name ?? key,
+                values: filterValues,
+            };
+        }
+        return filters;
+    });
+
+    async removeFilter(category: TagName | FilterName, value: string): Promise<void> {
+        const currentFilter = this.store.FILTER_LIST[category as FilterName];
+        const isFilter = currentFilter !== undefined && currentFilter.displayed;
+        if (isFilter) {
+            await this.store.setFilters(category as FilterName, value);
+        } else {
+            void this.store.filterByTag(category as TagName, value);
+        }
+    }
 }

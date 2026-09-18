@@ -19,7 +19,7 @@
                                 {{ totalRecordText() }}
                             } @else {
                                 @if (activeFilters()) {
-                                    @for (filter of activeFilters() | keyvalue; track $index) {
+                                    @for (filter of activeFilters() | keyvalue; track filter.key) {
                                         @for (filterValue of filter.value?.values; track filterValue) {
                                             <button
                                                 class="fr-tag fr-tag--dismiss fr-tag--sm fr-mr-2v fr-mb-2v"

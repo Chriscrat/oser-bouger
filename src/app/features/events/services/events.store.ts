@@ -128,7 +128,7 @@ export class EventsStore {
             }
         });
 
-        const page = this.currentPage;
+        const page = this.currentPage();
         await this.router.navigate([], {
             queryParams: { page, ...params },
             replaceUrl: true,
@@ -245,7 +245,7 @@ export class EventsStore {
 
     async filterByTag(tag: TagName, value: string): Promise<void> {
         const params = filtersToQueryParams(this.filters);
-        const page = this.currentPage;
+        const page = this.currentPage();
         this.currentTagsState.update(tags => ({
             ...tags,
             [tag]: tags[tag].includes(value)

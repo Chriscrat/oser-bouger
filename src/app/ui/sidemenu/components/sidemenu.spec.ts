@@ -14,7 +14,6 @@ describe("Sidemenu", () => {
 
         fixture = TestBed.createComponent(Sidemenu);
         component = fixture.componentInstance;
-        fixture.componentRef.setInput("filters", []);
         sidemenuService = TestBed.inject(SidemenuService);
         await fixture.whenStable();
     });

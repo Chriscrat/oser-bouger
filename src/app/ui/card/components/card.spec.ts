@@ -19,4 +19,13 @@ describe("Card", () => {
     it("should create", () => {
         expect(component).toBeTruthy();
     });
+
+    it("defaults to the vertical orientation class when no orientation is provided", () => {
+        expect(component.orientationTypeClass()).toBe("fr-card--vertical");
+    });
+
+    it("reflects a custom orientation input", () => {
+        fixture.componentRef.setInput("orientation", "horizontal");
+        expect(component.orientationTypeClass()).toBe("fr-card--horizontal");
+    });
 });

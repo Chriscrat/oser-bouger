@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 
 import { Pagination, buildPaginationItems } from "./pagination";
 import { PaginationItem } from "../models/pagination";
+import { provideRouterTesting } from "../../../../testing/router-stubs";
 
 function simplify(items: PaginationItem[]): (number | "...")[] {
     return items.map(item => (item.type === "page" ? item.page : "..."));
@@ -80,6 +81,7 @@ describe("Pagination", () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             imports: [Pagination],
+            providers: [provideRouterTesting()],
         }).compileComponents();
 
         fixture = TestBed.createComponent(Pagination);

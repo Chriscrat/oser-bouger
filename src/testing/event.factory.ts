@@ -1,0 +1,43 @@
+import { Event } from "../app/features/events/models/event";
+
+/** Factory function that returns an Event with sensible defaults; pass overrides to customize fields. */
+export function buildEvent(overrides: Partial<Event> = {}): Event {
+    return {
+        id: "evt-1",
+        title: "Concert en plein air",
+        url: "https://example.com/evt-1",
+        description: "Une description",
+        cover_url: "https://example.com/cover.jpg",
+        cover_alt: "Alt texte",
+        cover_credit: "Crédit photo",
+        date_description: "Le 12 mars 2026",
+        date_start: "2026-03-12T20:00:00+01:00",
+        audience: "Tout public",
+        price_type: "gratuit",
+        price_detail: "",
+        qfap_tags: "Musique;Concert",
+        pmr: null,
+        blind: null,
+        deaf: null,
+        sign_language: null,
+        mental: null,
+        address_name: "Parc des Buttes-Chaumont",
+        address_street: "1 rue Botzaris",
+        address_zipcode: "75019",
+        address_city: "Paris",
+        contact_url: null,
+        contact_mail: null,
+        contact_facebook: null,
+        contact_vimeo: null,
+        contact_twitter: null,
+        contact_organisation_name: null,
+        contact_url_text: null,
+        contact_tiktok: null,
+        contact_twitch: null,
+        contact_youtube: null,
+        contact_linkedin: null,
+        contact_whatsapp: null,
+        contact_instagram: null,
+        ...overrides,
+    };
+}

@@ -1,6 +1,4 @@
-import { Component, computed, DestroyRef, inject, OnInit } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { ActivatedRoute } from "@angular/router";
+import { Component, computed, inject, OnInit } from "@angular/core";
 
 import { Alert } from "../../../../ui/alert/components/alert";
 import { Card } from "../../../../ui/card/components/card";
@@ -16,14 +14,9 @@ import { Icon } from "../../../../ui/icon/components/icon";
 })
 export class EventListCards implements OnInit {
     store = inject(EventsStore);
-    private route = inject(ActivatedRoute);
-    private destroyRef = inject(DestroyRef);
 
     ngOnInit(): void {
-        this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
-            const page = Number(params.get("page")) || 1;
-            void this.store.goToPage(page);
-        });
+        this.store.ensureListSync();
     }
 
     alertNoEventFound = { description: "Aucun évènement trouvé" };

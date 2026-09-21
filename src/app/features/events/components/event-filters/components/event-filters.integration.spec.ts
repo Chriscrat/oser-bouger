@@ -28,6 +28,15 @@ describe("EventFilters (integration)", () => {
         httpMock = TestBed.inject(HttpTestingController);
         router = TestBed.inject(Router);
         store = TestBed.inject(EventsStore);
+
+        // In the real app EventListCards starts this on init; simulate that here since
+        // this test only mounts EventFilters, and drain the resulting initial fetch so
+        // it doesn't interfere with the categoryList/tag-filtered requests below.
+        store.ensureListSync();
+        TestBed.tick();
+        httpMock
+            .expectOne(req => req.url.startsWith(environment.catalogApi))
+            .flush({ total_count: 0, results: [] });
     });
 
     afterEach(() => {

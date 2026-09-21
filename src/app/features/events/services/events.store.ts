@@ -1,7 +1,7 @@
 import { Injectable, inject, signal, computed, effect } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
+import { toSignal, toObservable } from "@angular/core/rxjs-interop";
 import { Router, ActivatedRoute } from "@angular/router";
-import { EMPTY, catchError, finalize, tap } from "rxjs";
+import { EMPTY, catchError, finalize, switchMap, tap } from "rxjs";
 import { EventsService } from "./events.service";
 import {
     Category,
@@ -41,6 +41,18 @@ export class EventsStore {
     private initialFilters = computed(() => queryParamsToFilters(this.queryParams()));
     private initialPage = computed(() => Number(this.queryParams().get("page")) || 1);
     private initialTags = computed(() => queryTagsToFilters(this.queryParams()));
+
+    // Single source of truth for "what to fetch": derived straight from the URL so
+    // it re-triggers on every navigation, even when the resulting page/filters/tags
+    // values are unchanged (e.g. resetting to page 1 while already on page 1).
+    private requestedQuery = computed(() => ({
+        page: this.initialPage(),
+        filters: {
+            ...Object.fromEntries(this.filterNames.map(filterName => [filterName, [] as string[]])),
+            ...this.initialFilters(),
+        },
+        tags: this.initialTags(),
+    }));
 
     pageSize = 20;
 
@@ -98,6 +110,37 @@ export class EventsStore {
     });
     currentTags = this.currentTagsState.asReadonly();
 
+    // Sole source of event-list fetches: reacts to URL changes only, so navigation
+    // writers (goToPage/setFilters/...) never fetch directly themselves, and
+    // switchMap cancels any in-flight request when a newer one lands.
+    private listSync$ = toObservable(this.requestedQuery).pipe(
+        switchMap(({ page, filters, tags }) => {
+            this.listState.update(s => ({ ...s, loading: true, error: null }));
+            const offset = (page - 1) * this.pageSize;
+            return this.api.getEvents(filters, { limit: this.pageSize, offset }, tags).pipe(
+                tap(response => {
+                    const results = response.results ?? [];
+                    const totalCount = response.total_count ?? 0;
+                    this.listState.update(s => ({
+                        ...s,
+                        items: results,
+                        total: totalCount,
+                    }));
+                }),
+                catchError((err: unknown) => {
+                    const message = err instanceof Error ? err.message : String(err);
+                    this.listState.update(s => ({
+                        ...s,
+                        error: `Erreur de chargement: ${message}`,
+                    }));
+                    return EMPTY;
+                }),
+                finalize(() => this.listState.update(s => ({ ...s, loading: false })))
+            );
+        })
+    );
+    private listSyncStarted = false;
+
     constructor() {
         effect(() => {
             this.filters = {
@@ -109,6 +152,13 @@ export class EventsStore {
             this.currentPageState.set(this.initialPage());
             this.currentTagsState.set(this.initialTags());
         });
+    }
+
+    /** Starts the URL-reactive list fetch pipeline; no-op if already running (idempotent). */
+    ensureListSync(): void {
+        if (this.listSyncStarted) return;
+        this.listSyncStarted = true;
+        this.listSync$.subscribe();
     }
 
     async setFilters(filterName: FilterName, filterValue: string): Promise<void> {
@@ -128,45 +178,15 @@ export class EventsStore {
             }
         });
 
-        const page = this.currentPage();
         await this.router.navigate([], {
-            queryParams: { page, ...params },
+            queryParams: { page: 1, ...params },
             replaceUrl: true,
         });
-        await this.goToPage(1);
         this.mapUrl = this.getEventsMapUrl();
     }
 
     async goToPage(page: number): Promise<void> {
         if (page < 1) return;
-
-        this.currentPageState.set(page);
-        this.listState.update(s => ({ ...s, loading: true, error: null }));
-
-        const offset = (page - 1) * this.pageSize;
-        this.api
-            .getEvents(this.filters, { limit: this.pageSize, offset }, this.currentTags())
-            .pipe(
-                tap(response => {
-                    const results = response.results ?? [];
-                    const totalCount = response.total_count ?? 0;
-                    this.listState.update(s => ({
-                        ...s,
-                        items: results,
-                        total: totalCount,
-                    }));
-                }),
-                catchError((err: unknown) => {
-                    const message = err instanceof Error ? err.message : String(err);
-                    this.listState.update(s => ({
-                        ...s,
-                        error: `Erreur de chargement: ${message}`,
-                    }));
-                    return EMPTY;
-                }),
-                finalize(() => this.listState.update(s => ({ ...s, loading: false })))
-            )
-            .subscribe();
 
         await this.router.navigate([], {
             relativeTo: this.route,
@@ -184,7 +204,6 @@ export class EventsStore {
             replaceUrl: true,
             queryParamsHandling: "",
         });
-        await this.goToPage(1);
         this.mapUrl = this.getEventsMapUrl();
     }
 
@@ -245,7 +264,6 @@ export class EventsStore {
 
     async filterByTag(tag: TagName, value: string): Promise<void> {
         const params = filtersToQueryParams(this.filters);
-        const page = this.currentPage();
         this.currentTagsState.update(tags => ({
             ...tags,
             [tag]: tags[tag].includes(value)
@@ -260,9 +278,8 @@ export class EventsStore {
             }
         });
         await this.router.navigate([], {
-            queryParams: { page, ...params },
+            queryParams: { page: 1, ...params },
             replaceUrl: true,
         });
-        await this.goToPage(1);
     }
 }

@@ -32,7 +32,11 @@ describe("EventList", () => {
     });
 
     afterEach(() => {
-        httpMock.match(() => true).forEach(req => req.flush({ total_count: 0, results: [] }));
+        httpMock
+            .match(() => true)
+            .forEach(req => {
+                if (!req.cancelled) req.flush({ total_count: 0, results: [] });
+            });
         httpMock.verify();
     });
 

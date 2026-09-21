@@ -15,11 +15,6 @@ describe("EventsStore", () => {
     let navigateSpy: ReturnType<typeof vi.fn>;
     let routeStub: ActivatedRouteStub;
 
-    async function flushPendingEvents(payload: EventListModel = { total_count: 0, results: [] }) {
-        const req = await vi.waitFor(() => httpMock.expectOne(() => true));
-        req.flush(payload);
-    }
-
     beforeEach(() => {
         navigateSpy = vi.fn().mockResolvedValue(true);
         routeStub = activatedRouteStub({});
@@ -37,86 +32,167 @@ describe("EventsStore", () => {
         TestBed.tick();
     });
 
-    afterEach(() => {
-        httpMock.verify();
-    });
-
     it("should create", () => {
         expect(store).toBeTruthy();
     });
 
+    // goToPage/setFilters/resetFilters/filterByTag only write the URL now — they never
+    // fetch directly. This is what fixes the double-fetch bug: EventListCards used to
+    // react to its own store's navigate() calls and re-trigger goToPage() itself.
     describe("setFilters()", () => {
-        it("adds the given filter value, navigates and refetches page 1", async () => {
-            const promise = store.setFilters("address_city", "Paris");
-            await flushPendingEvents({ total_count: 1, results: [] });
-            await promise;
+        afterEach(() => httpMock.verify());
+
+        it("adds the given filter value and navigates with the page reset to 1", async () => {
+            await store.setFilters("address_city", "Paris");
 
             expect(store.filters.address_city).toEqual(["Paris"]);
             expect(navigateSpy).toHaveBeenCalledWith(
                 [],
-                expect.objectContaining({ replaceUrl: true })
+                expect.objectContaining({
+                    queryParams: { page: 1, address_city: ["Paris"] },
+                    replaceUrl: true,
+                })
             );
         });
 
         it("removes the filter value when it is already active (toggle)", async () => {
             store.filters.address_city = ["Paris"];
 
-            const promise = store.setFilters("address_city", "Paris");
-            await flushPendingEvents();
-            await promise;
+            await store.setFilters("address_city", "Paris");
 
             expect(store.filters.address_city).toEqual([]);
+        });
+
+        it("does not trigger a fetch by itself", async () => {
+            await store.setFilters("address_city", "Paris");
+
+            httpMock.expectNone(() => true);
         });
     });
 
     describe("goToPage()", () => {
+        afterEach(() => httpMock.verify());
+
         it("does nothing when the requested page is below 1", async () => {
             await store.goToPage(0);
 
             expect(navigateSpy).not.toHaveBeenCalled();
-            expect(store.listLoading()).toBe(false);
         });
 
-        it("loads events and updates total/events on success", async () => {
-            const promise = store.goToPage(2);
-            await flushPendingEvents({ total_count: 45, results: [buildMinimalEvent()] });
-            await promise;
+        it("navigates to the requested page, merging existing query params", async () => {
+            await store.goToPage(2);
 
-            expect(store.events()).toHaveLength(1);
-            expect(store.total()).toBe(45);
-            expect(store.listLoading()).toBe(false);
-            expect(store.listError()).toBeNull();
             expect(navigateSpy).toHaveBeenCalledWith(
                 [],
                 expect.objectContaining({ queryParams: { page: 2 }, queryParamsHandling: "merge" })
             );
         });
 
-        it("sets listError and stops loading when the HTTP request fails", async () => {
-            const promise = store.goToPage(1);
-            const req = await vi.waitFor(() => httpMock.expectOne(() => true));
-            req.flush("Server error", { status: 500, statusText: "Internal Server Error" });
-            await promise;
+        it("does not trigger a fetch by itself", async () => {
+            await store.goToPage(2);
 
-            expect(store.listLoading()).toBe(false);
-            expect(store.listError()).toContain("Erreur de chargement");
+            httpMock.expectNone(() => true);
         });
     });
 
     describe("resetFilters()", () => {
-        it("resets every filter to an empty array and refetches page 1", async () => {
+        afterEach(() => httpMock.verify());
+
+        it("resets every filter to an empty array and navigates to page 1", async () => {
             store.filters.address_city = ["Paris"];
             store.filters.pmr = ["1"];
 
-            const promise = store.resetFilters();
-            await flushPendingEvents();
-            await promise;
+            await store.resetFilters();
 
             expect(Object.values(store.filters).every(value => value.length === 0)).toBe(true);
             expect(navigateSpy).toHaveBeenCalledWith(
                 [],
-                expect.objectContaining({ queryParamsHandling: "" })
+                expect.objectContaining({ queryParams: { page: 1 }, queryParamsHandling: "" })
             );
+        });
+    });
+
+    describe("filterByTag()", () => {
+        afterEach(() => httpMock.verify());
+
+        it("activates a tag value and navigates with the page reset to 1", async () => {
+            await store.filterByTag("qfap_tags", "Sport");
+
+            expect(store.currentTags().qfap_tags).toEqual(["Sport"]);
+            expect(navigateSpy).toHaveBeenCalledWith(
+                [],
+                expect.objectContaining({ queryParams: { page: 1, qfap_tags: ["Sport"] } })
+            );
+        });
+
+        it("deactivates the tag value when it is already active (toggle)", async () => {
+            await store.filterByTag("qfap_tags", "Sport");
+            await store.filterByTag("qfap_tags", "Sport");
+
+            expect(store.currentTags().qfap_tags).toEqual([]);
+        });
+    });
+
+    // The single place that actually fetches the event list: purely reactive to the
+    // URL, started lazily via ensureListSync() (called once by EventListCards.ngOnInit).
+    describe("ensureListSync()", () => {
+        afterEach(() => httpMock.verify());
+
+        it("fetches immediately using the current URL state", () => {
+            store.ensureListSync();
+
+            const req = httpMock.expectOne(() => true);
+            req.flush({ total_count: 45, results: [buildMinimalEvent()] });
+
+            expect(store.events()).toHaveLength(1);
+            expect(store.total()).toBe(45);
+            expect(store.listLoading()).toBe(false);
+            expect(store.listError()).toBeNull();
+        });
+
+        it("is idempotent: calling it again does not start a second subscription", () => {
+            store.ensureListSync();
+            store.ensureListSync();
+
+            httpMock.expectOne(() => true).flush({ total_count: 0, results: [] });
+        });
+
+        it("sets listError and stops loading when the HTTP request fails", () => {
+            store.ensureListSync();
+
+            httpMock
+                .expectOne(() => true)
+                .flush("Server error", { status: 500, statusText: "Internal Server Error" });
+
+            expect(store.listLoading()).toBe(false);
+            expect(store.listError()).toContain("Erreur de chargement");
+        });
+
+        it("refetches when the route's page query param changes", () => {
+            store.ensureListSync();
+            httpMock.expectOne(() => true).flush({ total_count: 0, results: [] });
+
+            routeStub.setQueryParams({ page: "2" });
+            TestBed.tick();
+
+            httpMock.expectOne(() => true).flush({ total_count: 0, results: [] });
+        });
+
+        it("cancels a stale in-flight request when the query changes again before it resolves", () => {
+            store.ensureListSync();
+
+            routeStub.setQueryParams({ page: "2" });
+            TestBed.tick();
+
+            const requests = httpMock.match(() => true);
+            expect(requests).toHaveLength(2);
+            requests[requests.length - 1].flush({
+                total_count: 1,
+                results: [buildMinimalEvent({ title: "Latest page" })],
+            });
+
+            expect(store.events()).toHaveLength(1);
+            expect(store.events()[0].title).toBe("Latest page");
         });
     });
 
@@ -153,28 +229,6 @@ describe("EventsStore", () => {
             httpMock.expectOne(() => true).flush({ total_count: 0, results: null });
 
             expect(store.categoryList()).toEqual([]);
-        });
-    });
-
-    describe("filterByTag()", () => {
-        it("activates a tag value and refetches page 1", async () => {
-            const promise = store.filterByTag("qfap_tags", "Sport");
-            await flushPendingEvents();
-            await promise;
-
-            expect(store.currentTags().qfap_tags).toEqual(["Sport"]);
-        });
-
-        it("deactivates the tag value when it is already active (toggle)", async () => {
-            const first = store.filterByTag("qfap_tags", "Sport");
-            await flushPendingEvents();
-            await first;
-
-            const promise = store.filterByTag("qfap_tags", "Sport");
-            await flushPendingEvents();
-            await promise;
-
-            expect(store.currentTags().qfap_tags).toEqual([]);
         });
     });
 

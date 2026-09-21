@@ -87,19 +87,28 @@ describe('EventsService', () => {
 
 ---
 
-## Edge Cases & Known Limitations
+## Architecture note: how the event list fetches
 
-### Double-fetch in EventsStore.goToPage()
-When `EventsStore.goToPage()` is called with a real router (vs. a stub), Angular's `router.navigate()` triggers a re-navigation, which re-fires the `ActivatedRoute.queryParamMap` observable. This causes `EventListCards` to re-subscribe to the observable *again*, resulting in two HTTP fetch calls instead of one per page change.
+`EventsStore` used to have two places that could trigger an event-list fetch:
+`goToPage()`/`setFilters()`/etc. fetched directly *and* wrote the URL via
+`router.navigate()`, while `EventListCards` separately re-subscribed to
+`ActivatedRoute.queryParamMap` and called `goToPage()` again whenever the URL
+changed — including the URL change *caused by* `goToPage()` itself. With a
+real router this produced a double (sometimes triple, on filter changes)
+HTTP fetch per user action, and occasionally a stale/late response
+overwriting a newer one (no request cancellation).
 
-**Status:** Documented, not fixed. The app works correctly in practice because:
-- Tests isolate the store or route stub it
-- Real usage benefits from the eventual consistency of duplicate fetches
-
-**Mitigation:** Tests use `activatedRouteStub()` to avoid real navigation. In production, monitor duplicate fetches in Network tab if performance issues arise.
+**Fixed:** the URL is now the single source of truth for what to fetch.
+`goToPage()`/`setFilters()`/`resetFilters()`/`filterByTag()` only call
+`router.navigate()` — they never fetch. The only fetch trigger is
+`EventsStore.ensureListSync()`, a lazily-started, URL-reactive pipeline
+(`toObservable(requestedQuery).pipe(switchMap(...))`) that a consuming
+component starts once (`EventListCards.ngOnInit()`) and that cancels any
+stale in-flight request via `switchMap`. See `events.store.spec.ts`'s
+`ensureListSync()` describe block for the regression tests covering this.
 ---
 
 ## Related
 - Playwright e2e config: `playwright.config.ts`
-- Vitest config: `vitest.config.ts`
+- Vitest runs via the Angular CLI's native builder (`architect.test` in `angular.json`), no separate `vitest.config.ts`
 - Angular testing utilities: `@angular/core/testing`, `@angular/router/testing`

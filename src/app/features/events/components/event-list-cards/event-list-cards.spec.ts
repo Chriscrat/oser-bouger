@@ -15,7 +15,7 @@ describe("EventListCards", () => {
     let fixture: ComponentFixture<EventListCards>;
     let httpMock: HttpTestingController;
     let store: EventsStore;
-    let goToPageSpy: ReturnType<typeof vi.spyOn>;
+    let ensureListSyncSpy: ReturnType<typeof vi.spyOn>;
     let routeStub: ReturnType<typeof activatedRouteStub>;
 
     beforeEach(async () => {
@@ -32,14 +32,18 @@ describe("EventListCards", () => {
 
         store = TestBed.inject(EventsStore);
         httpMock = TestBed.inject(HttpTestingController);
-        goToPageSpy = vi.spyOn(store, "goToPage");
+        ensureListSyncSpy = vi.spyOn(store, "ensureListSync");
 
         fixture = TestBed.createComponent(EventListCards);
         component = fixture.componentInstance;
     });
 
     afterEach(() => {
-        httpMock.match(() => true).forEach(req => req.flush({ total_count: 0, results: [] }));
+        httpMock
+            .match(() => true)
+            .forEach(req => {
+                if (!req.cancelled) req.flush({ total_count: 0, results: [] });
+            });
         httpMock.verify();
     });
 
@@ -48,15 +52,9 @@ describe("EventListCards", () => {
         expect(component).toBeTruthy();
     });
 
-    it("defaults to page 1 when no page query param is present", async () => {
+    it("starts the store's URL-reactive list sync on init", async () => {
         await fixture.whenStable();
-        expect(goToPageSpy).toHaveBeenCalledWith(1);
-    });
-
-    it("reads the page number from the URL query params", async () => {
-        routeStub.setQueryParams({ page: "3" });
-        await fixture.whenStable();
-        expect(goToPageSpy).toHaveBeenCalledWith(3);
+        expect(ensureListSyncSpy).toHaveBeenCalledOnce();
     });
 
     it("maps store events through mapEventToCardDetails", async () => {

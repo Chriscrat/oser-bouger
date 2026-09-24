@@ -8,4 +8,8 @@
             float: right;
         }
     }
+    .fr-event-display {
+        display: flex;
+        justify-content: end;
+    }
 }

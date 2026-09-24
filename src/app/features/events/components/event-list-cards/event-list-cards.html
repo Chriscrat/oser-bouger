@@ -1,120 +1,120 @@
-<div class="fr-grid-row fr-grid-row--gutters fr-grid-row--center">
-    @if (events().length) {
-        <div class="fr-container">
-            <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--center">
-                @for (event of events(); track event.id) {
-                    <app-card class="fr-col-12 fr-col-sm-6 fr-col-md-4 fr-col-lg-3">
-                        <div card-header>
-                            <div class="fr-card__img">
-                                <img
-                                    class="fr-responsive-img"
-                                    [src]="event.cover?.url"
-                                    [alt]="event.cover?.alt"
-                                />
-                                <ul class="fr-badges-group">
-                                    @if (event.tags?.category) {
-                                        @for (category of event.tags?.category?.split(';'); track $index) {
-                                            <li>
-                                                <p class="fr-badge">
-                                                    {{ category }}
-                                                </p>
-                                            </li>
-                                        }
-                                    }
-                                </ul>
-                            </div>
-                        </div>
-
-                        <div
-                            card-content
-                            class="fr-card__content fr-p-1v"
-                        >
-                            <div class="fr-px-5v fr-pt-5v">
-                                <ul class="fr-badges-group audience-badge">
-                                    @if (event.tags?.audience) {
+@if (events().length) {
+    <div class="fr-container--fluid">
+        <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--center">
+            @for (event of events(); track event.id) {
+                <app-card class="fr-col-12 fr-col-sm-6 fr-col-md-4 fr-col-lg-3">
+                    <div card-header>
+                        <div class="fr-card__img">
+                            <img
+                                class="fr-responsive-img"
+                                [src]="event.cover?.url"
+                                [alt]="event.cover?.alt"
+                            />
+                            <ul class="fr-badges-group">
+                                @if (event.tags?.category) {
+                                    @for (category of event.tags?.category?.split(';'); track $index) {
                                         <li>
-                                            <p class="fr-badge fr-badge--purple-glycine">
-                                                {{ event.tags?.audience }}
+                                            <p class="fr-badge">
+                                                {{ category }}
                                             </p>
                                         </li>
                                     }
-                                </ul>
+                                }
+                            </ul>
+                        </div>
+                    </div>
 
-                                <div class="title fr-text--lg">
-                                    {{ event.title }}
-                                </div>
+                    <div
+                        card-content
+                        class="fr-card__content fr-p-1v"
+                    >
+                        <div class="fr-px-5v fr-pt-5v">
+                            <ul class="fr-badges-group audience-badge">
+                                @if (event.tags?.audience) {
+                                    <li>
+                                        <p class="fr-badge fr-badge--purple-glycine">
+                                            {{ event.tags?.audience }}
+                                        </p>
+                                    </li>
+                                }
+                            </ul>
 
-                                <div class="fr-card__tags">
-                                    @if (event.address?.name) {
-                                        <div class="fr-text--sm">
-                                            <app-icon
-                                                [icon]="'map-pin-2'"
-                                                class="fr-text-action-high--red-marianne fr-mr-2v"
-                                            ></app-icon>
-                                            {{ event.address?.name }}
-                                        </div>
-                                    }
+                            <div class="title fr-text--lg">
+                                {{ event.title }}
+                            </div>
 
-                                    @if (event.address?.city) {
-                                        <div class="fr-text--sm">
-                                            <app-icon
-                                                [icon]="'road-map'"
-                                                class="fr-text-action-high--red-marianne fr-mr-2v"
-                                            ></app-icon>
-                                            {{ event.address?.city }}
-                                        </div>
-                                    }
+                            <div class="fr-card__tags">
+                                @if (event.address?.name) {
+                                    <div class="fr-text--sm">
+                                        <app-icon
+                                            [icon]="'map-pin-2'"
+                                            class="fr-text-action-high--red-marianne fr-mr-2v"
+                                        ></app-icon>
+                                        {{ event.address?.name }}
+                                    </div>
+                                }
 
-                                    @if (event.tags?.priceType) {
-                                        <div class="fr-text--sm">
-                                            <app-icon
-                                                [icon]="'money-euro-circle'"
-                                                class="fr-text-action-high--red-marianne fr-mr-2v"
-                                            ></app-icon>
-                                            {{ event.tags?.priceType }}
-                                        </div>
-                                    }
+                                @if (event.address?.city) {
+                                    <div class="fr-text--sm">
+                                        <app-icon
+                                            [icon]="'road-map'"
+                                            class="fr-text-action-high--red-marianne fr-mr-2v"
+                                        ></app-icon>
+                                        {{ event.address?.city }}
+                                    </div>
+                                }
 
-                                    @if(event.date_start) {
-                                        <div class="fr-text--sm">
-                                            <app-icon
-                                                [icon]="'calendar-event'"
-                                                class="fr-text-action-high--red-marianne fr-mr-2v"
-                                            ></app-icon>
-                                            {{ getFormatDate(event.date_start) }}
-                                        </div>
-                                    }
-                                </div>
+                                @if (event.tags?.priceType) {
+                                    <div class="fr-text--sm">
+                                        <app-icon
+                                            [icon]="'money-euro-circle'"
+                                            class="fr-text-action-high--red-marianne fr-mr-2v"
+                                        ></app-icon>
+                                        {{ event.tags?.priceType }}
+                                    </div>
+                                }
+
+                                @if(event.date_start) {
+                                    <div class="fr-text--sm">
+                                        <app-icon
+                                            [icon]="'calendar-event'"
+                                            class="fr-text-action-high--red-marianne fr-mr-2v"
+                                        ></app-icon>
+                                        {{ getFormatDate(event.date_start) }}
+                                    </div>
+                                }
                             </div>
                         </div>
+                    </div>
 
-                        <div card-footer>
-                            <div class="fr-card__footer">
-                                <a
-                                    class="fr-btn fr-btn__event fr-btn--tertiary-no-outline"
-                                    [href]="'event/' + event.id"
-                                >
-                                    {{ buttonTitle }}
-                                    <app-icon icon="arrow-right"></app-icon>
-                                </a>
-                            </div>
+                    <div card-footer>
+                        <div class="fr-card__footer fr-mb-n8v">
+                            <a
+                                class="fr-btn fr-btn__event fr-btn--tertiary-no-outline"
+                                [href]="'event/' + event.id"
+                            >
+                                {{ buttonTitle }}
+                                <app-icon icon="arrow-right"></app-icon>
+                            </a>
                         </div>
-                    </app-card>
-                }
-            </div>
+                    </div>
+                </app-card>
+            }
         </div>
-        <div class="fr-container--fluid fr-mt-5v">
+    </div>
+    <div class="fr-container--fluid fr-mt-5v">
+        <div class="fr-grid-row fr-grid-row--center">
             <app-pagination
                 [totalItems]="totalEvents()"
                 [itemsPerPage]="eventsPerPage()"
                 [page]="store.currentPage()"
             />
         </div>
-    } @else {
-        <app-alert
-            class="fr-p-8v"
-            [alert]="alertNoEventFound"
-            type="info"
-        ></app-alert>
-    }
-</div>
+    </div>
+} @else {
+    <app-alert
+        class="fr-p-8v"
+        [alert]="alertNoEventFound"
+        type="info"
+    ></app-alert>
+}

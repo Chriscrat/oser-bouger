@@ -1,53 +1,63 @@
 <div class="fr-container fr-background-alt--grey fr-pb-6v fr-pb-md-10v">
-    <div class="fr-sticky-container fr-background-alt--grey">
-        <div class="fr-container--fluid">
-            <div class="fr-grid-row">
-                <div class="fr-col-8 fr-col-md-10">
-                    <div class="fr-grid-row fr-mx-2v">
-                        <button
-                            class="fr-btn fr-icon-filter-fill fr-btn--icon-left fr-my-4v fr-col-1"
-                            type="button"
-                            style='max-height: 40px;'
-                            aria-controls="sidemenu-filters"
-                            [attr.aria-expanded]="sidemenuService.isOpen()"
-                            (click)="sidemenuService.toggle()"
-                        >
-                            Filtres
-                        </button>
-                        <div class="fr-text--lg fr-text--bold fr-col-9 fr-col-offset-1 fr-my-4v">
-                            @if (totalRecordText()) {
-                                {{ totalRecordText() }}
-                            } @else {
-                                @if (activeFilters()) {
-                                    @for (filter of activeFilters() | keyvalue; track filter.key) {
-                                        @for (filterValue of filter.value?.values; track filterValue) {
-                                            <button
-                                                class="fr-tag fr-tag--dismiss fr-tag--sm fr-mr-2v fr-mb-2v"
-                                                type="button"
-                                                [aria-label]="`${filter.value?.name}:${filterValue}`"
-                                                (click)="removeFilter($any(filter.key), filterValue)"
-                                            >
-                                                {{ filter.value?.name }} : {{ filterValue }}
-                                            </button>
+    <div class="fr-grid-row fr-grid-row--gutters">
+        <div class="fr-col fr-sticky-container fr-background-alt--grey">
+            <div class="fr-container--fluid">
+                <div class="fr-grid-row">
+                    <div class="fr-col-10 fr-col-md-8">
+                        <div class="fr-grid-row fr-mx-2v">
+                            <button
+                                class="fr-btn fr-icon-filter-fill fr-btn--icon-left fr-my-4v fr-col-1"
+                                type="button"
+                                style='max-height: 40px;'
+                                aria-controls="sidemenu-filters"
+                                [attr.aria-expanded]="sidemenuService.isOpen()"
+                                (click)="sidemenuService.toggle()"
+                            >
+                                Filtres
+                            </button>
+                            <div class="fr-text--lg fr-text--bold fr-col-9 fr-col-offset-1 fr-my-4v">
+                                @if (totalRecordText()) {
+                                    {{ totalRecordText() }}
+                                } @else {
+                                    @if (activeFilters()) {
+                                        @for (filter of activeFilters() | keyvalue; track filter.key) {
+                                            @for (filterValue of filter.value?.values; track filterValue) {
+                                                <button
+                                                    class="fr-tag fr-tag--dismiss fr-tag--sm fr-mr-2v fr-mb-2v"
+                                                    type="button"
+                                                    [aria-label]="`${filter.value?.name}:${filterValue}`"
+                                                    (click)="removeFilter($any(filter.key), filterValue)"
+                                                >
+                                                    {{ filter.value?.name }} : {{ filterValue }}
+                                                </button>
+                                            }
                                         }
                                     }
                                 }
-                            }
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="fr-col-3 fr-col-md-2">
-                    <app-button-group [buttonGroup]="buttons"></app-button-group>
+                    <div class="fr-col-2 fr-col-md-4">
+                        <app-button-group [buttonGroup]="buttons"></app-button-group>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <div [hidden]="currentView() !== 'list'">
-        <app-event-list-cards></app-event-list-cards>
-    </div>
-    @if (mapMounted) {
-        <div [hidden]="currentView() !== 'map'">
-            <app-event-list-map></app-event-list-map>
+    <div class="fr-grid-row fr-grid-row--gutters">
+        <div
+            class="fr-col"
+            [hidden]="currentView() !== 'list'"
+        >
+            <app-event-list-cards></app-event-list-cards>
         </div>
-    }
+        @if (mapMounted) {
+            <div
+                class="fr-col"
+                [hidden]="currentView() !== 'map'"
+            >
+                <app-event-list-map></app-event-list-map>
+            </div>
+        }
+    </div>
 </div>

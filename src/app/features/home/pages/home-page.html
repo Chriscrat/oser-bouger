@@ -1,6 +1,6 @@
 <div class="fr-container">
-    <div class="fr-my-7w fr-mt-md-12w fr-mb-md-10w fr-grid-row">
-        <div class="fr-container">
+    <div class="fr-my-7w fr-mt-md-12w fr-mb-md-10w fr-grid-row fr-grid-row--center">
+        <div class="fr-container--fluid">
             <app-alert
                 [alert]="alert"
                 type="warning"
@@ -15,9 +15,8 @@
             }
             <app-hero></app-hero>
         </div>
-        <div class="fr-container">
-            <app-event-list></app-event-list>
-        </div>
+
+        <app-event-list></app-event-list>
     </div>
 </div>
 <app-sidemenu>

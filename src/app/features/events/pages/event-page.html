@@ -1,5 +1,5 @@
 <div class="fr-container--fluid">
-    <div class="fr-my-7w fr-mt-md-4w fr-mb-md-10w fr-grid-row fr-grid-row--gutters">
+    <div class="fr-my-7w fr-mt-md-4w fr-mb-md-10w fr-grid-row fr-grid-row--gutters fr-grid-row--center">
         <div class="fr-container">
             <app-alert
                 [alert]="alertDisclaimer"
@@ -8,21 +8,25 @@
         </div>
         @if (event(); as currentEvent) {
             <div class="fr-container fr-mt-md-4w">
-                <button
-                    type="button"
-                    class="fr-btn fr-btn__back fr-icon-arrow-left-line fr-btn--icon-left fr-my-4v"
-                    (click)="goBack()"
-                >
-                    Retour
-                </button>
-                <app-event-cover
-                    [event]="currentEvent"
-                    [titleId]="currentEvent.title"
-                ></app-event-cover>
-                <app-event-details [event]="currentEvent"></app-event-details>
+                <div class="fr-grid-row">
+                    <button
+                        type="button"
+                        class="fr-btn fr-btn__back fr-icon-arrow-left-line fr-btn--icon-left fr-my-4v"
+                        (click)="goBack()"
+                    >
+                        Retour
+                    </button>
+                </div>
+                <div>
+                    <app-event-cover
+                        [event]="currentEvent"
+                        [titleId]="currentEvent.title"
+                    ></app-event-cover>
+                    <app-event-details [event]="currentEvent"></app-event-details>
+                </div>
             </div>
         } @else {
-            <div class="fr-container">
+            <div class="fr-container--fluid">
                 <app-alert
                     class="fr-p-8v"
                     [alert]="alertNoEventFound"

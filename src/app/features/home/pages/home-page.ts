@@ -1,9 +1,11 @@
-import { Component } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { Alert } from "../../../ui/alert/components/alert";
 import { Hero } from "../../home/components/hero/hero";
 import { EventList } from "../../events/components/event-list/event-list";
 import { Sidemenu } from "../../../ui/sidemenu/components/sidemenu";
 import { EventFilters } from "../../events/components/event-filters/components/event-filters";
+import { EventsService } from "../../events/services/events.service";
+import { AlertModel } from "../../../ui/alert/models/alert";
 
 @Component({
     selector: "app-home-page",
@@ -17,5 +19,13 @@ export class HomePage {
         title: "Ce service n'est pas un projet officiel",
         description:
             "Il a pour but d'implémenter le DSFR à des fins de test par un particulier et n'est aucunement associé aux équipes digitales des entités de l'État français.",
+    };
+
+    private readonly eventsService: EventsService = inject(EventsService);
+    isFallbackMode = this.eventsService.isFallbackMode;
+    fallbackAlert: AlertModel = {
+        title: "Données de démonstration",
+        description:
+            "L'API opendata de la Ville de Paris est indisponible : les évènements affichés sont des données fictives.",
     };
 }

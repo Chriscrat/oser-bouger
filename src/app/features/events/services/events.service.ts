@@ -1,7 +1,7 @@
-import { inject, Injectable } from "@angular/core";
+import { inject, Injectable, signal } from "@angular/core";
 import { HttpClient, HttpParams } from "@angular/common/http";
-import { Observable } from "rxjs";
-import { EventListModel, EventView } from "../models/event";
+import { Observable, catchError, firstValueFrom, tap, throwError, timeout } from "rxjs";
+import { CategoryListModel, EventListModel, EventView } from "../models/event";
 import {
     Filter,
     FacetsRecord,
@@ -11,9 +11,16 @@ import {
     TagsModel,
 } from "../models/event-filters";
 import { environment } from "../../../environments/environment";
+import { EventsFallbackService } from "./events-fallback.service";
 
 @Injectable({ providedIn: "root" })
 export class EventsService {
+    private fallback = inject(EventsFallbackService);
+
+    // Sticky: once the API has failed, later calls skip it instead of waiting for another timeout.
+    private fallbackModeState = signal(environment.useFallbackData);
+    isFallbackMode = this.fallbackModeState.asReadonly();
+
     private datasetId = "que-faire-a-paris-";
     private timezone = "Europe/Paris";
     private language = "fr";
@@ -38,9 +45,13 @@ export class EventsService {
         pagination: PaginationParams,
         tags: TagsModel
     ): Observable<EventListModel> {
-        return this.http.get<EventListModel>(this.eventListUrl, {
-            params: this.buildFiltersParameters(filters, "list", pagination, tags),
-        });
+        return this.withFallback(
+            () =>
+                this.http.get<EventListModel>(this.eventListUrl, {
+                    params: this.buildFiltersParameters(filters, "list", pagination, tags),
+                }),
+            () => this.fallback.getEvents(filters, pagination, tags)
+        );
     }
 
     getEvent(eventId: string): Observable<EventListModel> {
@@ -49,15 +60,44 @@ export class EventsService {
         url.searchParams.set("timezone", "Europe/Paris");
         url.searchParams.set("lang", this.language);
 
-        return this.http.get<EventListModel>(url.toString());
+        return this.withFallback(
+            () => this.http.get<EventListModel>(url.toString()),
+            () => this.fallback.getEvent(eventId)
+        );
     }
 
-    getCategoryList(): Observable<EventListModel> {
+    getCategoryList(): Observable<CategoryListModel> {
         const field = "qfap_tags";
         const url = new URL(this.eventListUrl);
         url.searchParams.set("select", field);
         url.searchParams.set("group_by", field);
-        return this.http.get<EventListModel>(url.toString());
+        return this.withFallback(
+            () => this.http.get<CategoryListModel>(url.toString()),
+            () => this.fallback.getCategoryList()
+        );
+    }
+
+    /**
+     * Calls the opendata API and switches to the static dataset when it errors or times out.
+     * If the fallback fails too, the original API error is rethrown.
+     */
+    private withFallback<T>(
+        apiRequest: () => Observable<T>,
+        fallbackRequest: () => Observable<T>
+    ): Observable<T> {
+        if (this.fallbackModeState()) {
+            return fallbackRequest();
+        }
+        return apiRequest().pipe(
+            timeout(environment.apiTimeout),
+            catchError((apiError: unknown) => {
+                console.warn("Opendata API unreachable, switching to fallback data", apiError);
+                return fallbackRequest().pipe(
+                    tap(() => this.fallbackModeState.set(true)),
+                    catchError(() => throwError(() => apiError))
+                );
+            })
+        );
     }
 
     private buildFiltersParameters(
@@ -146,6 +186,20 @@ export class EventsService {
     }
 
     async getFacetsList(): Promise<FacetsRecord> {
+        if (this.fallbackModeState()) {
+            return firstValueFrom(this.fallback.getFacets(this.FILTERS_ENUM));
+        }
+        try {
+            return await this.fetchFacetsFromApi();
+        } catch (apiError) {
+            console.warn("Opendata facets API unreachable, switching to fallback data", apiError);
+            const facets = await firstValueFrom(this.fallback.getFacets(this.FILTERS_ENUM));
+            this.fallbackModeState.set(true);
+            return facets;
+        }
+    }
+
+    private async fetchFacetsFromApi(): Promise<FacetsRecord> {
         const disjunctiveFilters = this.FILTERS_ENUM.map(
             (filter, index) => (index >= 1 ? "&" : "?") + `disjunctive.${filter}=true`
         ).join("");
@@ -160,11 +214,17 @@ export class EventsService {
         url.searchParams.set("lang", this.language);
 
         const facetsApiUrl = url.toString();
-        const result = await fetch(facetsApiUrl);
+        const result = await fetch(facetsApiUrl, {
+            signal: AbortSignal.timeout(environment.apiTimeout),
+        });
         const facetsData = (await result.json()) as {
-            facet_groups: Array<{ name: string; facets: Filter[] }>;
+            facet_groups?: Array<{ name: string; facets: Filter[] }>;
         };
-        return this.buildFilterList(facetsData);
+        // An error payload (e.g. 5xx) has no facet_groups: treat it as a failure.
+        if (!Array.isArray(facetsData.facet_groups)) {
+            throw new Error("Invalid facets response");
+        }
+        return this.buildFilterList({ facet_groups: facetsData.facet_groups });
     }
 
     getFilters(): FilterName[] {

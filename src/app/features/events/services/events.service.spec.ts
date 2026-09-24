@@ -1,10 +1,11 @@
 import { TestBed } from "@angular/core/testing";
 import { HttpTestingController } from "@angular/common/http/testing";
-import { vi } from "vitest";
+import { MockInstance, vi } from "vitest";
 
 import { EventsService } from "./events.service";
 import { provideHttpTesting } from "../../../../testing/http-stubs";
 import { stubFetchJson } from "../../../../testing/fetch.stub";
+import { buildEvent } from "../../../../testing/event.factory";
 import { environment } from "../../../environments/environment";
 import { ActiveFacetsRecord, TagsModel } from "../models/event-filters";
 import { EventListModel } from "../models/event";
@@ -200,6 +201,86 @@ describe("EventsService", () => {
 
             expect(Object.keys(facets)).toEqual(["address_city"]);
             expect(facets.address_city).toEqual([{ name: "Paris", active: true, count: 3 }]);
+        });
+    });
+
+    describe("fallback to static data", () => {
+        const fallbackPayload: EventListModel = {
+            total_count: 1,
+            results: [buildEvent({ id: "fallback-1", address_city: "Paris" })],
+        };
+        let consoleWarnSpy: MockInstance<typeof console.warn>;
+
+        beforeEach(() => {
+            consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+        });
+
+        afterEach(() => {
+            consoleWarnSpy.mockRestore();
+            vi.unstubAllGlobals();
+        });
+
+        it("is not in fallback mode by default", () => {
+            expect(service.isFallbackMode()).toBe(false);
+        });
+
+        it("serves the static dataset and flags fallback mode when the API errors", () => {
+            let response: EventListModel | undefined;
+
+            service
+                .getEvents(emptyFilters, { limit: 20, offset: 0 }, emptyTags)
+                .subscribe(res => (response = res));
+            httpMock
+                .expectOne(request => request.url === environment.catalogApi)
+                .flush("error", { status: 503, statusText: "Service Unavailable" });
+            httpMock.expectOne(environment.fallbackDataUrl).flush(fallbackPayload);
+
+            expect(response).toEqual(fallbackPayload);
+            expect(service.isFallbackMode()).toBe(true);
+        });
+
+        it("skips the API for later calls once in fallback mode", () => {
+            service.getEvents(emptyFilters, { limit: 20, offset: 0 }, emptyTags).subscribe();
+            httpMock
+                .expectOne(request => request.url === environment.catalogApi)
+                .flush("error", { status: 503, statusText: "Service Unavailable" });
+            httpMock.expectOne(environment.fallbackDataUrl).flush(fallbackPayload);
+
+            let response: EventListModel | undefined;
+            service.getEvent("fallback-1").subscribe(res => (response = res));
+
+            httpMock.expectNone(request => request.url.startsWith(environment.catalogApi));
+            expect(response?.results?.[0].id).toBe("fallback-1");
+        });
+
+        it("rethrows the original API error when the fallback fails too", () => {
+            let receivedError: unknown;
+
+            service.getCategoryList().subscribe({
+                error: (err: unknown) => (receivedError = err),
+            });
+            httpMock
+                .expectOne(request => request.url.startsWith(environment.catalogApi))
+                .flush("error", { status: 503, statusText: "Service Unavailable" });
+            httpMock
+                .expectOne(environment.fallbackDataUrl)
+                .flush("missing", { status: 404, statusText: "Not Found" });
+
+            expect((receivedError as { status: number }).status).toBe(503);
+            expect(service.isFallbackMode()).toBe(false);
+        });
+
+        it("computes facets from the static dataset when the facets API answers without facet_groups", async () => {
+            stubFetchJson({ error: "Service Unavailable" });
+
+            const facetsPromise = service.getFacetsList();
+            await vi.waitFor(() =>
+                httpMock.expectOne(environment.fallbackDataUrl).flush(fallbackPayload)
+            );
+            const facets = await facetsPromise;
+
+            expect(facets.address_city).toEqual([{ name: "Paris", active: true, count: 1 }]);
+            expect(service.isFallbackMode()).toBe(true);
         });
     });
 

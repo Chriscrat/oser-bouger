@@ -8,6 +8,7 @@ import { provideHttpTesting } from "../../../../testing/http-stubs";
 import { activatedRouteStub, ActivatedRouteStub } from "../../../../testing/router-stubs";
 import { buildEvent as buildMinimalEvent } from "../../../../testing/event.factory";
 import { CategoryListModel, EventListModel } from "../models/event";
+import { environment } from "../../../environments/environment";
 
 describe("EventsStore", () => {
     let store: EventsStore;
@@ -157,15 +158,39 @@ describe("EventsStore", () => {
             httpMock.expectOne(() => true).flush({ total_count: 0, results: [] });
         });
 
-        it("sets listError and stops loading when the HTTP request fails", () => {
+        it("sets listError and stops loading when both the API and the fallback data fail", () => {
+            const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
             store.ensureListSync();
 
             httpMock
-                .expectOne(() => true)
+                .expectOne(request => request.url.startsWith(environment.catalogApi))
                 .flush("Server error", { status: 500, statusText: "Internal Server Error" });
+            httpMock
+                .expectOne(environment.fallbackDataUrl)
+                .flush("Not found", { status: 404, statusText: "Not Found" });
 
             expect(store.listLoading()).toBe(false);
             expect(store.listError()).toContain("Erreur de chargement");
+
+            consoleWarnSpy.mockRestore();
+        });
+
+        it("fills the list from the fallback data when the API fails", () => {
+            const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+            store.ensureListSync();
+
+            httpMock
+                .expectOne(request => request.url.startsWith(environment.catalogApi))
+                .flush("Server error", { status: 500, statusText: "Internal Server Error" });
+            httpMock
+                .expectOne(environment.fallbackDataUrl)
+                .flush({ total_count: 1, results: [buildMinimalEvent({ id: "fallback-1" })] });
+
+            expect(store.listError()).toBeNull();
+            expect(store.total()).toBe(1);
+            expect(store.events()[0].id).toBe("fallback-1");
+
+            consoleWarnSpy.mockRestore();
         });
 
         it("refetches when the route's page query param changes", () => {
@@ -261,18 +286,23 @@ describe("EventsStore", () => {
             expect(store.currentEvent()).toBeNull();
         });
 
-        it("logs the error and leaves currentEvent unset when the request fails", () => {
+        it("logs the error and leaves currentEvent unset when the API and the fallback fail", () => {
             const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
+            const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
 
             store.fetchEvent("abc123");
             httpMock
-                .expectOne(() => true)
+                .expectOne(request => request.url.startsWith(environment.catalogApi))
                 .flush("error", { status: 500, statusText: "Server Error" });
+            httpMock
+                .expectOne(environment.fallbackDataUrl)
+                .flush("Not found", { status: 404, statusText: "Not Found" });
 
             expect(consoleErrorSpy).toHaveBeenCalled();
             expect(store.currentEvent()).toBeNull();
 
             consoleErrorSpy.mockRestore();
+            consoleWarnSpy.mockRestore();
         });
     });
 

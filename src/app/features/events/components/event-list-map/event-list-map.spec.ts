@@ -2,9 +2,13 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ActivatedRoute } from "@angular/router";
 import { DomSanitizer } from "@angular/platform-browser";
 import { SecurityContext } from "@angular/core";
+import { HttpTestingController } from "@angular/common/http/testing";
+import { vi } from "vitest";
 
 import { EventListMap } from "./event-list-map";
 import { EventsStore } from "../../services/events.store";
+import { EventsService } from "../../services/events.service";
+import { environment } from "../../../../environments/environment";
 import { provideHttpTesting } from "../../../../../testing/http-stubs";
 import { activatedRouteStub, provideRouterTesting } from "../../../../../testing/router-stubs";
 
@@ -46,5 +50,31 @@ describe("EventListMap", () => {
         );
 
         expect(sanitized).toBe(store.mapUrl);
+    });
+
+    it("renders the map iframe when the API is available", () => {
+        const element = fixture.nativeElement as HTMLElement;
+
+        expect(element.querySelector("iframe")).not.toBeNull();
+        expect(element.querySelector(".fr-alert")).toBeNull();
+    });
+
+    it("replaces the iframe with an info alert in fallback mode", async () => {
+        const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+        const httpMock = TestBed.inject(HttpTestingController);
+
+        TestBed.inject(EventsService).getCategoryList().subscribe();
+        httpMock
+            .expectOne(request => request.url.startsWith(environment.catalogApi))
+            .flush("error", { status: 503, statusText: "Service Unavailable" });
+        httpMock.expectOne(environment.fallbackDataUrl).flush({ total_count: 0, results: [] });
+        await fixture.whenStable();
+        consoleWarnSpy.mockRestore();
+
+        const element = fixture.nativeElement as HTMLElement;
+        expect(element.querySelector("iframe")).toBeNull();
+        expect(element.querySelector(".fr-alert--info")?.textContent).toContain(
+            "Carte indisponible"
+        );
     });
 });

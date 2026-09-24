@@ -1,10 +1,18 @@
-<div class="fr-container--fluid">
-    <div class="fr-my-7w fr-mt-md-12w fr-mb-md-10w fr-grid-row fr-grid-row--gutters">
+<div class="fr-container">
+    <div class="fr-my-7w fr-mt-md-12w fr-mb-md-10w fr-grid-row">
         <div class="fr-container">
             <app-alert
                 [alert]="alert"
                 type="warning"
             ></app-alert>
+            @if (isFallbackMode()) {
+                <div class="fr-mt-2w">
+                    <app-alert
+                        [alert]="fallbackAlert"
+                        type="info"
+                    ></app-alert>
+                </div>
+            }
             <app-hero></app-hero>
         </div>
         <div class="fr-container">

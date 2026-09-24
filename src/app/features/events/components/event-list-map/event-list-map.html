@@ -1,6 +1,13 @@
 <div class="fr-container">
-    <iframe
-        [src]="trustedMapUrl()"
-        frameborder="0"
-    ></iframe>
+    @if (isFallbackMode()) {
+        <app-alert
+            [alert]="unavailableMapAlert"
+            type="info"
+        ></app-alert>
+    } @else {
+        <iframe
+            [src]="trustedMapUrl()"
+            frameborder="0"
+        ></iframe>
+    }
 </div>

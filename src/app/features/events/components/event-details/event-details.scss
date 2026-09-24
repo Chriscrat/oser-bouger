@@ -2,6 +2,7 @@ $bg-tags: #fff;
 $bg-social-network: var(--background-contrast-blue-france);
 
 .fr-event-details {
+    border: solid 1px $bg-social-network;;
     &__tags {
         background-color: var(--bg-tags);
         display: flex;

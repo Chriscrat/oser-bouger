@@ -8,6 +8,7 @@ export default {
                 "app",
                 "layout",
                 "home",
+                "event",
                 "architecture",
                 "ui",
                 "event-list",
